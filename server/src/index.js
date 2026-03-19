@@ -8,9 +8,24 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
 
 const app = express();
+const normalizeOrigin = (value) =>
+  value.trim().replace(/\/$/, "").toLowerCase();
+
 const allowedOrigins = env.ALLOWED_ORIGIN
-  ? env.ALLOWED_ORIGIN.split(",").map((origin) => origin.trim())
+  ? env.ALLOWED_ORIGIN.split(",").map((origin) => normalizeOrigin(origin))
   : [];
+
+const isHostedFrontend = (origin) => {
+  try {
+    const { hostname } = new URL(origin);
+    return (
+      hostname.endsWith(".vercel.app") ||
+      hostname.endsWith(".onrender.com")
+    );
+  } catch {
+    return false;
+  }
+};
 
 app.use(
   helmet({
@@ -21,10 +36,13 @@ app.use(
 app.use(
   cors({
     origin(origin, callback) {
+      const normalizedOrigin = origin ? normalizeOrigin(origin) : "";
+
       if (
         !origin ||
         allowedOrigins.length === 0 ||
-        allowedOrigins.includes(origin)
+        allowedOrigins.includes(normalizedOrigin) ||
+        isHostedFrontend(origin)
       ) {
         callback(null, true);
         return;
