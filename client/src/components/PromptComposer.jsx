@@ -27,7 +27,7 @@ export default function PromptComposer({
           <textarea
             value={prompt}
             onChange={(event) => onPromptChange(event.target.value)}
-            placeholder="例如：为一款适合独居老年人的智能厨房提醒设备生成设计刺激词，重点考虑安全感、可达性和低学习成本。"
+            placeholder="示例：为一款适合独居老年人的智能厨房提醒设备生成设计刺激词，重点考虑安全感、可达性和低学习成本。"
             className="min-h-[180px] w-full resize-none rounded-[24px] border border-slate-200 bg-slate-50/80 px-5 py-4 text-base leading-7 text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-200/60"
             disabled={loading}
           />
@@ -64,4 +64,3 @@ export default function PromptComposer({
     </section>
   );
 }
-

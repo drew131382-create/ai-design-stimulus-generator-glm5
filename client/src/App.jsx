@@ -8,11 +8,8 @@ import { STIMULUS_GROUPS } from "./lib/categories";
 import { generateStimuli } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
-const DEFAULT_PROMPT =
-  "为一款帮助自由职业者管理注意力切换的桌面型工作辅助工具生成设计刺激词，重点关注沉浸感、轻提醒与情绪负担控制。";
-
 export default function App() {
-  const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
+  const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -127,4 +124,3 @@ export default function App() {
     </div>
   );
 }
-
