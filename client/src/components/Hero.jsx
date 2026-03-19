@@ -17,32 +17,21 @@ export default function Hero() {
             AI设计刺激词生成器
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 md:text-lg">
-            输入一个设计需求或设计问题，系统将基于 GLM-5 生成 Near、Medium、Far
-            三类刺激词，帮助你从结构、场景到跨领域隐喻快速打开思路。
+            输入一个设计需求或设计问题，系统将基于 GLM-5 生成三组设计刺激词，帮助你快速延展创意方向。
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
           {TAGS.map((tag) => (
-            <div
+            <span
               key={tag.label}
-              className="rounded-2xl border border-white/80 bg-white/85 p-4 shadow-sm"
+              className={`inline-flex rounded-full border border-white/80 px-3 py-1.5 text-xs font-semibold ${tag.color}`}
             >
-              <span
-                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${tag.color}`}
-              >
-                {tag.label}
-              </span>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                {tag.label === "Near" && "聚焦功能、结构、材料与性能。"}
-                {tag.label === "Medium" && "转向场景、行为与使用体验。"}
-                {tag.label === "Far" && "连接自然意象、隐喻与跨领域。"}
-              </p>
-            </div>
+              {tag.label}
+            </span>
           ))}
         </div>
       </div>
     </section>
   );
 }
-
