@@ -3,7 +3,7 @@ export const STIMULUS_GROUPS = [
     key: "near",
     title: "Near Stimuli",
     shortTitle: "Near",
-    subtitle: "功能 / 结构 / 材料 / 性能",
+    subtitle: "产品本体刺激：功能、结构、材料、工艺、人机、维护、效率、安全",
     badgeClass: "bg-near-100 text-near-700 ring-1 ring-inset ring-near-200",
     panelClass: "border-near-200/80 bg-white/80",
     activeClass:
@@ -16,7 +16,8 @@ export const STIMULUS_GROUPS = [
     key: "medium",
     title: "Medium Stimuli",
     shortTitle: "Medium",
-    subtitle: "场景 / 行为 / 体验",
+    subtitle:
+      "使用情境刺激：用户角色、行为流程、空间环境、时间状态、交互方式、体验特征",
     badgeClass:
       "bg-medium-100 text-medium-700 ring-1 ring-inset ring-medium-200",
     panelClass: "border-medium-200/80 bg-white/80",
@@ -30,7 +31,8 @@ export const STIMULUS_GROUPS = [
     key: "far",
     title: "Far Stimuli",
     shortTitle: "Far",
-    subtitle: "自然 / 隐喻 / 跨领域",
+    subtitle:
+      "机制迁移刺激：自然机制、生物启发、物理现象、组织逻辑、系统结构、抽象意象、可迁移原理",
     badgeClass: "bg-far-100 text-far-700 ring-1 ring-inset ring-far-200",
     panelClass: "border-far-200/80 bg-white/80",
     activeClass:
@@ -44,4 +46,3 @@ export const STIMULUS_GROUPS = [
 export const GROUP_MAP = Object.fromEntries(
   STIMULUS_GROUPS.map((group) => [group.key, group])
 );
-
