@@ -25,9 +25,9 @@ Rules:
 - Generate dynamically from the user's request.
 
 Semantic distance rules:
-- near: focus on function, structure, material, performance
-- medium: focus on scenario, behavior, experience
-- far: focus on nature, metaphor, cross-domain inspiration
+- near: product-body stimuli. Focus on function, structure, material, manufacturing process, human-machine factors, maintenance, efficiency, and safety.
+- medium: usage-context stimuli. Focus on user roles, behavior flow, spatial environment, temporal state, interaction modes, and experience characteristics.
+- far: mechanism-transfer stimuli. Focus on natural mechanisms, bio-inspired principles, physical phenomena, organizational logic, system structures, abstract imagery, and transferable principles.
 
 The semantic distance between near, medium, and far must be clearly different.
 `.trim();
@@ -52,4 +52,3 @@ export function buildRetryMessage() {
       "Return valid JSON only. Ensure exactly 10 unique items in near, medium, and far, and include only word, inspiration, and direction."
   };
 }
-
