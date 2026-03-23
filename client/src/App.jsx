@@ -8,19 +8,11 @@ import { STIMULUS_GROUPS } from "./lib/categories";
 import { generateStimuli } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
-const LOADING_COPIES = [
-  "正在分析你的设计需求",
-  "正在扩展 Near / Medium / Far 语义距离",
-  "正在组织结构化刺激词结果",
-  "正在校验词项去重与字段完整性"
-];
-
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [loadingCopyIndex, setLoadingCopyIndex] = useState(0);
   const abortRef = useRef(null);
   const { selection, selectedItem, selectItem } = useStimulusSelection(result);
 
@@ -29,21 +21,6 @@ export default function App() {
       abortRef.current?.abort();
     };
   }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      setLoadingCopyIndex(0);
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      setLoadingCopyIndex((current) => (current + 1) % LOADING_COPIES.length);
-    }, 1800);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [loading]);
 
   const handleGenerate = async () => {
     const trimmedPrompt = prompt.trim();
@@ -57,7 +34,6 @@ export default function App() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setLoadingCopyIndex(0);
     setLoading(true);
     setError("");
 
@@ -75,8 +51,6 @@ export default function App() {
     }
   };
 
-  const loadingCopy = LOADING_COPIES[loadingCopyIndex];
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-shell text-slate-900">
       <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
@@ -93,7 +67,6 @@ export default function App() {
           onGenerate={handleGenerate}
           loading={loading}
           hasResult={Boolean(result)}
-          loadingCopy={loadingCopy}
         />
 
         <section className="space-y-5">
@@ -108,7 +81,9 @@ export default function App() {
             </div>
           </div>
 
-          {loading ? <StatusBlock type="loading" message={loadingCopy} /> : null}
+          {loading ? (
+            <StatusBlock type="loading" message="正在生成刺激词" />
+          ) : null}
 
           {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
