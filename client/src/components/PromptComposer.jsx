@@ -5,8 +5,7 @@ export default function PromptComposer({
   onPromptChange,
   onGenerate,
   loading,
-  hasResult,
-  loadingCopy
+  hasResult
 }) {
   return (
     <section className="rounded-[28px] border border-slate-200/70 bg-white/80 p-6 shadow-panel backdrop-blur md:p-8">
@@ -39,7 +38,7 @@ export default function PromptComposer({
             输出将根据你的输入语言自动切换。
             {loading ? (
               <span className="ml-2 inline-flex items-center gap-2 text-slate-600">
-                {loadingCopy || "正在处理"}
+                正在处理中
                 <LoadingDots />
               </span>
             ) : null}
