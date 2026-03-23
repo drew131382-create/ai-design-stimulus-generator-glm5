@@ -1,18 +1,19 @@
+import LoadingDots from "./LoadingDots";
+
 export default function PromptComposer({
   prompt,
   onPromptChange,
   onGenerate,
   loading,
-  hasResult
+  hasResult,
+  loadingCopy
 }) {
   return (
     <section className="rounded-[28px] border border-slate-200/70 bg-white/80 p-6 shadow-panel backdrop-blur md:p-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-900">
-              设计输入
-            </h2>
+            <h2 className="text-xl font-semibold text-slate-900">设计输入</h2>
             <span className="text-xs font-medium text-slate-500">
               建议 20-300 字
             </span>
@@ -36,6 +37,12 @@ export default function PromptComposer({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-500">
             输出将根据你的输入语言自动切换。
+            {loading ? (
+              <span className="ml-2 inline-flex items-center gap-2 text-slate-600">
+                {loadingCopy || "正在处理"}
+                <LoadingDots />
+              </span>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -46,7 +53,14 @@ export default function PromptComposer({
                 disabled={loading}
                 className="inline-flex min-w-[132px] items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "重新生成中..." : "重新生成"}
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="spinner-ring" />
+                    重新生成中
+                  </span>
+                ) : (
+                  "重新生成"
+                )}
               </button>
             ) : null}
 
@@ -56,7 +70,14 @@ export default function PromptComposer({
               disabled={loading}
               className="inline-flex min-w-[132px] items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "生成中..." : "生成刺激词"}
+              {loading ? (
+                <span className="inline-flex items-center gap-2">
+                  <span className="spinner-ring border-white/90 border-t-transparent" />
+                  生成中
+                </span>
+              ) : (
+                "生成刺激词"
+              )}
             </button>
           </div>
         </div>
