@@ -1,8 +1,118 @@
-import LoadingDots from "./LoadingDots";
+﻿import LoadingDots from "./LoadingDots";
+
+const REQUIRED_FIELDS = [
+  {
+    key: "product",
+    label: "product *",
+    placeholder: "e.g. Senior-friendly smart pill box",
+    component: "input"
+  },
+  {
+    key: "user",
+    label: "user *",
+    placeholder: "e.g. Elderly people living alone",
+    component: "input"
+  },
+  {
+    key: "goal",
+    label: "goal *",
+    placeholder: "e.g. Reduce missed doses and improve medication confidence.",
+    component: "textarea"
+  }
+];
+
+const OPTIONAL_FIELDS = [
+  {
+    key: "scenario",
+    label: "scenario",
+    placeholder: "e.g. Before morning/evening medication, users need quick status checks.",
+    component: "textarea"
+  },
+  {
+    key: "constraints",
+    label: "constraints",
+    placeholder: "e.g. low cost, simple interaction, offline reminders",
+    component: "textarea"
+  },
+  {
+    key: "styleTags",
+    label: "styleTags",
+    placeholder: "e.g. gentle, trustworthy (comma-separated)",
+    component: "input"
+  },
+  {
+    key: "emotionTags",
+    label: "emotionTags",
+    placeholder: "e.g. relief, control (comma-separated)",
+    component: "input"
+  },
+  {
+    key: "notes",
+    label: "notes",
+    placeholder: "other notes",
+    component: "textarea"
+  },
+  {
+    key: "existingIdeas",
+    label: "existingIdeas",
+    placeholder: "existing ideas",
+    component: "textarea"
+  },
+  {
+    key: "avoidDirections",
+    label: "avoidDirections",
+    placeholder: "what to avoid",
+    component: "textarea"
+  }
+];
+
+function Field({ field, value, error, onFieldChange, loading }) {
+  const commonClassName =
+    "w-full rounded-2xl border px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4";
+
+  return (
+    <label className="block space-y-2">
+      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        {field.label}
+      </span>
+
+      {field.component === "textarea" ? (
+        <textarea
+          rows={3}
+          value={value}
+          onChange={(event) => onFieldChange(field.key, event.target.value)}
+          placeholder={field.placeholder}
+          className={`${commonClassName} resize-y ${
+            error
+              ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
+              : "border-slate-200 bg-slate-50/80 focus:border-slate-300 focus:ring-slate-200/60"
+          }`}
+          disabled={loading}
+        />
+      ) : (
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => onFieldChange(field.key, event.target.value)}
+          placeholder={field.placeholder}
+          className={`${commonClassName} ${
+            error
+              ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
+              : "border-slate-200 bg-slate-50/80 focus:border-slate-300 focus:ring-slate-200/60"
+          }`}
+          disabled={loading}
+        />
+      )}
+
+      {error ? <p className="text-xs text-rose-600">{error}</p> : null}
+    </label>
+  );
+}
 
 export default function PromptComposer({
-  prompt,
-  onPromptChange,
+  form,
+  errors,
+  onFieldChange,
   onGenerate,
   loading,
   hasResult
@@ -12,33 +122,60 @@ export default function PromptComposer({
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-900">设计输入</h2>
-            <span className="text-xs font-medium text-slate-500">
-              建议 20-300 字
-            </span>
+            <h2 className="text-xl font-semibold text-slate-900">Design Task Input</h2>
+            <span className="text-xs font-medium text-slate-500">Light Mode</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            可以输入产品需求、交互问题、服务重构方向，或任何希望获得设计刺激的命题。
+            Fill only 3 key fields (product / user / goal) to generate results.
           </p>
         </div>
 
-        <label className="block">
-          <span className="sr-only">设计需求输入框</span>
-          <textarea
-            value={prompt}
-            onChange={(event) => onPromptChange(event.target.value)}
-            placeholder="示例：为一款适合独居老年人的智能厨房提醒设备生成设计刺激词，重点考虑安全感、可达性和低学习成本。"
-            className="min-h-[180px] w-full resize-none rounded-[24px] border border-slate-200 bg-slate-50/80 px-5 py-4 text-base leading-7 text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-200/60"
-            disabled={loading}
-          />
-        </label>
+        <div className="grid gap-4 md:grid-cols-2">
+          {REQUIRED_FIELDS.map((field) => (
+            <div
+              key={field.key}
+              className={field.component === "textarea" ? "md:col-span-2" : ""}
+            >
+              <Field
+                field={field}
+                value={form[field.key] || ""}
+                error={errors[field.key]}
+                onFieldChange={onFieldChange}
+                loading={loading}
+              />
+            </div>
+          ))}
+        </div>
+
+        <details className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+          <summary className="cursor-pointer text-sm font-medium text-slate-700">
+            Optional fields
+          </summary>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {OPTIONAL_FIELDS.map((field) => (
+              <div
+                key={field.key}
+                className={field.component === "textarea" ? "md:col-span-2" : ""}
+              >
+                <Field
+                  field={field}
+                  value={form[field.key] || ""}
+                  error={errors[field.key]}
+                  onFieldChange={onFieldChange}
+                  loading={loading}
+                />
+              </div>
+            ))}
+          </div>
+        </details>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-500">
-            输出将根据你的输入语言自动切换。
+            Returns near / medium / far groups with semantic distance.
             {loading ? (
               <span className="ml-2 inline-flex items-center gap-2 text-slate-600">
-                正在处理中
+                Processing
                 <LoadingDots />
               </span>
             ) : null}
@@ -55,10 +192,10 @@ export default function PromptComposer({
                 {loading ? (
                   <span className="inline-flex items-center gap-2">
                     <span className="spinner-ring" />
-                    重新生成中
+                    Regenerating
                   </span>
                 ) : (
-                  "重新生成"
+                  "Regenerate"
                 )}
               </button>
             ) : null}
@@ -72,10 +209,10 @@ export default function PromptComposer({
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="spinner-ring border-white/90 border-t-transparent" />
-                  生成中
+                  Generating
                 </span>
               ) : (
-                "生成刺激词"
+                "Generate"
               )}
             </button>
           </div>

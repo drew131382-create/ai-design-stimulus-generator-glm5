@@ -55,8 +55,8 @@ async function requestChatCompletion(messages) {
   return content;
 }
 
-export async function generateStimuli(input) {
-  const baseMessages = buildStimulusMessages(input);
+export async function generateStimuli(task) {
+  const baseMessages = buildStimulusMessages(task);
   let lastError = null;
 
   for (let attempt = 0; attempt < 2; attempt += 1) {

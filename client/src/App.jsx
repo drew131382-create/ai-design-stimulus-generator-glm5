@@ -1,15 +1,83 @@
-import { useEffect, useRef, useState, startTransition } from "react";
+﻿import { useEffect, useRef, useState, startTransition } from "react";
 import Hero from "./components/Hero";
 import PromptComposer from "./components/PromptComposer";
 import StimulusColumn from "./components/StimulusColumn";
 import DetailPanel from "./components/DetailPanel";
 import StatusBlock from "./components/StatusBlock";
+import TaskCard from "./components/TaskCard";
 import { STIMULUS_GROUPS } from "./lib/categories";
 import { generateStimuli } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
+const INITIAL_TASK_FORM = {
+  product: "",
+  user: "",
+  scenario: "",
+  goal: "",
+  constraints: "",
+  styleTags: "",
+  emotionTags: "",
+  existingIdeas: "",
+  avoidDirections: "",
+  notes: ""
+};
+
+function normalizeText(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function splitTags(value) {
+  return normalizeText(value)
+    .split(/[,，、\n]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function buildTask(form) {
+  return {
+    product: normalizeText(form.product),
+    user: normalizeText(form.user),
+    scenario: normalizeText(form.scenario),
+    goal: normalizeText(form.goal),
+    constraints: normalizeText(form.constraints),
+    styleTags: splitTags(form.styleTags),
+    emotionTags: splitTags(form.emotionTags),
+    existingIdeas: normalizeText(form.existingIdeas),
+    avoidDirections: normalizeText(form.avoidDirections),
+    notes: normalizeText(form.notes)
+  };
+}
+
+function validateLength(value, min, max) {
+  return value.length >= min && value.length <= max;
+}
+
+function validateTask(form) {
+  const task = buildTask(form);
+  const errors = {};
+
+  if (!validateLength(task.product, 2, 30)) {
+    errors.product = "product must be 2-30 chars";
+  }
+
+  if (!validateLength(task.user, 2, 50)) {
+    errors.user = "user must be 2-50 chars";
+  }
+
+  if (!validateLength(task.goal, 10, 150)) {
+    errors.goal = "goal must be 10-150 chars";
+  }
+
+  return {
+    task,
+    errors,
+    valid: Object.keys(errors).length === 0
+  };
+}
+
 export default function App() {
-  const [prompt, setPrompt] = useState("");
+  const [taskForm, setTaskForm] = useState(INITIAL_TASK_FORM);
+  const [formErrors, setFormErrors] = useState({});
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -22,11 +90,31 @@ export default function App() {
     };
   }, []);
 
-  const handleGenerate = async () => {
-    const trimmedPrompt = prompt.trim();
+  const handleFieldChange = (key, value) => {
+    setTaskForm((current) => ({
+      ...current,
+      [key]: value
+    }));
 
-    if (!trimmedPrompt) {
-      setError("请输入设计需求或设计问题后再生成。");
+    setFormErrors((current) => {
+      if (!current[key]) {
+        return current;
+      }
+
+      const next = {
+        ...current
+      };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const handleGenerate = async () => {
+    const { task, errors, valid } = validateTask(taskForm);
+
+    if (!valid) {
+      setFormErrors(errors);
+      setError(Object.values(errors)[0] || "Please complete required fields");
       return;
     }
 
@@ -38,13 +126,13 @@ export default function App() {
     setError("");
 
     try {
-      const payload = await generateStimuli(trimmedPrompt, controller.signal);
+      const payload = await generateStimuli(task, controller.signal);
       startTransition(() => {
         setResult(payload);
       });
     } catch (requestError) {
       if (requestError.name !== "AbortError") {
-        setError(requestError.message || "生成失败，请稍后重试。");
+        setError(requestError.message || "Generation failed. Please retry.");
       }
     } finally {
       setLoading(false);
@@ -62,8 +150,9 @@ export default function App() {
         <Hero />
 
         <PromptComposer
-          prompt={prompt}
-          onPromptChange={setPrompt}
+          form={taskForm}
+          errors={formErrors}
+          onFieldChange={handleFieldChange}
           onGenerate={handleGenerate}
           loading={loading}
           hasResult={Boolean(result)}
@@ -73,29 +162,29 @@ export default function App() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                设计刺激结果
+                Design Stimulus Results
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                点击任意卡片，下方详情面板会同步展示灵感来源与设计方向。
+                Click any card to inspect details and rationale.
               </p>
             </div>
           </div>
 
-          {loading ? (
-            <StatusBlock type="loading" message="正在生成刺激词" />
-          ) : null}
+          {loading ? <StatusBlock type="loading" message="Generating stimuli..." /> : null}
 
           {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
           {!loading && !error && !result ? (
             <StatusBlock
               type="empty"
-              message="输入你的设计问题后，系统会返回 Near、Medium、Far 三类共 30 个结构化刺激词。"
+              message="Fill the task and generate near / medium / far structured stimuli."
             />
           ) : null}
 
           {!loading && !error && result ? (
             <>
+              <TaskCard task={result.task} />
+
               <div className="grid gap-5 xl:grid-cols-3">
                 {STIMULUS_GROUPS.map((group) => (
                   <StimulusColumn

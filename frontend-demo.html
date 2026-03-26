@@ -1,0 +1,478 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Stimulus Demo</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --line: #dce3ef;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #111827;
+      --danger: #dc2626;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", sans-serif;
+      background: radial-gradient(circle at top right, #e7eefb 0, var(--bg) 42%);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1200px, 92vw);
+      margin: 24px auto 60px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    h3 { font-size: 14px; }
+
+    .desc { color: var(--muted); margin-top: 8px; line-height: 1.6; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .span-2 { grid-column: span 2; }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, textarea, button {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea { min-height: 86px; resize: vertical; }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #a5b4fc;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 12px;
+      min-height: 14px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: 0;
+      cursor: pointer;
+      padding: 11px 18px;
+      font-weight: 600;
+    }
+
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .muted { color: var(--muted); font-size: 13px; }
+
+    .status {
+      font-size: 14px;
+      color: var(--muted);
+      min-height: 20px;
+    }
+
+    .status.error { color: var(--danger); }
+
+    .task-grid, .result-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .task-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #f9fbff;
+    }
+
+    .task-item b {
+      display: inline-block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .result-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .group-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .stimulus {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+
+    .stimulus .word {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .stimulus .exp {
+      color: #374151;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .distance {
+      color: #4b5563;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > i {
+      display: block;
+      height: 100%;
+      background: #1f2937;
+      width: 0;
+    }
+
+    @media (max-width: 960px) {
+      .result-grid { grid-template-columns: 1fr; }
+      .task-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .span-2 { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>设计刺激词 Demo</h1>
+      <p class="desc">单文件前端示例：结构化任务输入 + 语义距离展示。默认请求 <code>http://localhost:10000/api/generate</code>。</p>
+    </section>
+
+    <section class="card">
+      <h2>结构化任务输入</h2>
+      <div class="grid">
+        <label>
+          API Base URL
+          <input id="apiBase" value="http://localhost:10000" />
+          <span class="error"></span>
+        </label>
+
+        <label>
+          product *
+          <input id="product" placeholder="例如：适老化智能药盒" />
+          <span class="error" data-err="product"></span>
+        </label>
+
+        <label>
+          user *
+          <input id="user" placeholder="例如：独居高龄老人" />
+          <span class="error" data-err="user"></span>
+        </label>
+
+        <label class="span-2">
+          scenario *
+          <textarea id="scenario" placeholder="例如：老人每天在早晚服药前，需要快速确认药盒状态并获得提醒。"></textarea>
+          <span class="error" data-err="scenario"></span>
+        </label>
+
+        <label class="span-2">
+          goal *
+          <textarea id="goal" placeholder="例如：提升服药依从性，降低误服漏服风险，并减少家属远程管理压力。"></textarea>
+          <span class="error" data-err="goal"></span>
+        </label>
+
+        <label class="span-2">
+          constraints *
+          <textarea id="constraints" placeholder="例如：成本可控、操作简单、支持离线提醒。"></textarea>
+          <span class="error" data-err="constraints"></span>
+        </label>
+
+        <label>
+          styleTags
+          <input id="styleTags" placeholder="例如：温和、可信赖、家居化" />
+          <span class="error"></span>
+        </label>
+
+        <label>
+          emotionTags
+          <input id="emotionTags" placeholder="例如：安心、掌控感、被照顾" />
+          <span class="error"></span>
+        </label>
+
+        <label class="span-2">
+          existingIdeas
+          <textarea id="existingIdeas" placeholder="例如：语音提醒 + 误触防护"></textarea>
+          <span class="error"></span>
+        </label>
+
+        <label class="span-2">
+          avoidDirections
+          <textarea id="avoidDirections" placeholder="例如：避免复杂触屏和过度游戏化"></textarea>
+          <span class="error"></span>
+        </label>
+
+        <label class="span-2">
+          notes
+          <textarea id="notes" placeholder="例如：优先考虑单手操作与弱视可读性"></textarea>
+          <span class="error"></span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="submitBtn">生成刺激词</button>
+        <span class="muted">返回 near / medium / far 三组，并补充语义距离</span>
+      </div>
+      <p id="status" class="status"></p>
+    </section>
+
+    <section id="taskCard" class="card" hidden>
+      <h2>任务卡</h2>
+      <div id="taskGrid" class="task-grid"></div>
+    </section>
+
+    <section id="resultCard" class="card" hidden>
+      <h2>刺激词结果</h2>
+      <div id="resultGrid" class="result-grid"></div>
+    </section>
+  </main>
+
+  <script>
+    const requiredRules = {
+      product: [2, 30],
+      user: [2, 50],
+      scenario: [10, 150],
+      goal: [10, 150],
+      constraints: [2, 150]
+    };
+
+    const fields = [
+      "product", "user", "scenario", "goal", "constraints",
+      "styleTags", "emotionTags", "existingIdeas", "avoidDirections", "notes"
+    ];
+
+    function text(id) {
+      return (document.getElementById(id).value || "").trim();
+    }
+
+    function splitTags(value) {
+      return value
+        .split(/[，,、\n]/)
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }
+
+    function buildTask() {
+      return {
+        product: text("product"),
+        user: text("user"),
+        scenario: text("scenario"),
+        goal: text("goal"),
+        constraints: text("constraints"),
+        styleTags: splitTags(text("styleTags")),
+        emotionTags: splitTags(text("emotionTags")),
+        existingIdeas: text("existingIdeas"),
+        avoidDirections: text("avoidDirections"),
+        notes: text("notes")
+      };
+    }
+
+    function validate(task) {
+      const errors = {};
+      for (const [key, [min, max]] of Object.entries(requiredRules)) {
+        const len = (task[key] || "").length;
+        if (len < min || len > max) {
+          errors[key] = `${key} 长度需 ${min}-${max} 字`;
+        }
+      }
+      return errors;
+    }
+
+    function showErrors(errors) {
+      document.querySelectorAll("[data-err]").forEach((node) => {
+        const key = node.getAttribute("data-err");
+        node.textContent = errors[key] || "";
+      });
+    }
+
+    function levelText(v) {
+      return v || "暂无等级";
+    }
+
+    function scoreValue(v) {
+      return typeof v === "number" ? Math.max(0, Math.min(100, Math.round(v))) : null;
+    }
+
+    function val(x) {
+      if (Array.isArray(x)) return x.length ? x.join("、") : "未填写";
+      return x && String(x).trim() ? String(x).trim() : "未填写";
+    }
+
+    function renderTask(task) {
+      const required = ["product", "user", "scenario", "goal", "constraints"];
+      const optional = ["styleTags", "emotionTags", "existingIdeas", "avoidDirections", "notes"];
+      const all = [...required, ...optional];
+      const grid = document.getElementById("taskGrid");
+      grid.innerHTML = all
+        .map((k) => `<div class="task-item"><b>${k}</b><div>${escapeHtml(val(task[k]))}</div></div>`)
+        .join("");
+      document.getElementById("taskCard").hidden = false;
+    }
+
+    function renderGroup(title, items) {
+      return `
+        <div>
+          <h3 class="group-title">${title} (${items.length})</h3>
+          ${items.map(renderItem).join("")}
+        </div>
+      `;
+    }
+
+    function renderItem(item) {
+      const score = scoreValue(item.semantic_distance_score);
+      const distanceRow = score === null
+        ? `<div class="distance"><span>暂无距离数据</span></div>`
+        : `<div class="distance"><span>语义距离：${score}/100</span><span>${escapeHtml(levelText(item.semantic_distance_level))}</span></div>
+           <div class="bar"><i style="width:${score}%"></i></div>`;
+
+      return `
+        <article class="stimulus">
+          <div class="word">${escapeHtml(item.word || "")}</div>
+          <div class="exp">${escapeHtml(item.explanation || item.inspiration || "")}</div>
+          ${distanceRow}
+        </article>
+      `;
+    }
+
+    function renderResult(payload) {
+      const resultGrid = document.getElementById("resultGrid");
+      const near = Array.isArray(payload.near) ? payload.near : [];
+      const medium = Array.isArray(payload.medium) ? payload.medium : [];
+      const far = Array.isArray(payload.far) ? payload.far : [];
+
+      resultGrid.innerHTML = [
+        renderGroup("Near", near),
+        renderGroup("Medium", medium),
+        renderGroup("Far", far)
+      ].join("");
+      document.getElementById("resultCard").hidden = false;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function submit() {
+      const status = document.getElementById("status");
+      const btn = document.getElementById("submitBtn");
+      const apiBase = text("apiBase").replace(/\/$/, "") || "http://localhost:10000";
+      const task = buildTask();
+      const errors = validate(task);
+      showErrors(errors);
+
+      if (Object.keys(errors).length) {
+        status.textContent = "请先修正必填字段错误。";
+        status.className = "status error";
+        return;
+      }
+
+      btn.disabled = true;
+      status.textContent = "正在请求生成...";
+      status.className = "status";
+
+      try {
+        const resp = await fetch(`${apiBase}/api/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task })
+        });
+
+        const data = await resp.json().catch(() => null);
+
+        if (!resp.ok) {
+          throw new Error((data && data.error && data.error.message) || "接口调用失败");
+        }
+
+        renderTask(data.task || task);
+        renderResult(data || {});
+        status.textContent = "生成成功。";
+        status.className = "status";
+      } catch (err) {
+        status.textContent = `请求失败：${err.message || err}`;
+        status.className = "status error";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", submit);
+
+    for (const id of fields) {
+      const node = document.getElementById(id);
+      if (!node) continue;
+      node.addEventListener("input", () => {
+        const errNode = document.querySelector(`[data-err="${id}"]`);
+        if (errNode) errNode.textContent = "";
+      });
+    }
+  </script>
+</body>
+</html>

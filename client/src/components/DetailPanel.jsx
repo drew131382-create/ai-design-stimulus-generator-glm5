@@ -1,4 +1,4 @@
-import { GROUP_MAP } from "../lib/categories";
+﻿import { GROUP_MAP } from "../lib/categories";
 import { cn } from "../lib/cn";
 
 export default function DetailPanel({ selection, selectedItem }) {
@@ -40,10 +40,10 @@ export default function DetailPanel({ selection, selectedItem }) {
         <div className="grid gap-4 md:grid-cols-2">
           <article className="rounded-2xl border border-slate-200 bg-slate-50/85 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Inspiration
+              Explanation
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
-              {selectedItem.inspiration}
+              {selectedItem.explanation || selectedItem.inspiration}
             </p>
           </article>
 
@@ -52,7 +52,7 @@ export default function DetailPanel({ selection, selectedItem }) {
               Direction
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
-              {selectedItem.direction}
+              {selectedItem.direction || selectedItem.explanation}
             </p>
           </article>
         </div>
@@ -60,4 +60,3 @@ export default function DetailPanel({ selection, selectedItem }) {
     </section>
   );
 }
-

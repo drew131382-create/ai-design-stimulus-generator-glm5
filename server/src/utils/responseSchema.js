@@ -3,8 +3,9 @@ import { HttpError } from "./httpError.js";
 
 const rawItemSchema = z.object({
   word: z.string(),
-  inspiration: z.string(),
-  direction: z.string()
+  explanation: z.string().optional(),
+  inspiration: z.string().optional(),
+  direction: z.string().optional()
 });
 
 const rawResponseSchema = z.object({
@@ -14,6 +15,10 @@ const rawResponseSchema = z.object({
 });
 
 function normalizeText(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
   return value.replace(/\s+/g, " ").trim();
 }
 
@@ -21,17 +26,19 @@ function collectUniqueItems(items, label, globalSeen) {
   const uniqueItems = [];
 
   for (const item of items) {
+    const explanation = normalizeText(
+      item.explanation ||
+        [item.inspiration, item.direction].filter(Boolean).join(" ")
+    );
+
     const normalizedItem = {
       word: normalizeText(item.word),
-      inspiration: normalizeText(item.inspiration),
-      direction: normalizeText(item.direction)
+      explanation,
+      inspiration: normalizeText(item.inspiration) || explanation,
+      direction: normalizeText(item.direction) || explanation
     };
 
-    if (
-      !normalizedItem.word ||
-      !normalizedItem.inspiration ||
-      !normalizedItem.direction
-    ) {
+    if (!normalizedItem.word || !normalizedItem.explanation) {
       continue;
     }
 
@@ -62,4 +69,3 @@ export function normalizeStimulusPayload(payload) {
     far: collectUniqueItems(parsed.far, "far", globalSeen)
   };
 }
-
