@@ -1,11 +1,10 @@
 ﻿import { cn } from "../lib/cn";
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
 function hasDistanceData(item) {
-  return typeof item.semantic_distance_score === "number";
+  return (
+    typeof item.semantic_similarity === "number" &&
+    typeof item.semantic_distance === "number"
+  );
 }
 
 export default function StimulusCard({
@@ -16,7 +15,6 @@ export default function StimulusCard({
   onClick
 }) {
   const hasDistance = hasDistanceData(item);
-  const score = hasDistance ? clamp(item.semantic_distance_score, 0, 100) : 0;
 
   return (
     <button
@@ -59,20 +57,13 @@ export default function StimulusCard({
 
         <div className="mt-3 rounded-xl border border-slate-200/80 bg-white/70 p-3">
           {hasDistance ? (
-            <>
-              <div className="flex items-center justify-between gap-3 text-xs text-slate-600">
-                <span>语义距离：{score}/100</span>
-                <span className="font-medium text-slate-700">
-                  {item.semantic_distance_level || "未知"}
-                </span>
-              </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
-                <div
-                  className="h-full rounded-full bg-slate-800 transition-all duration-300"
-                  style={{ width: `${score}%` }}
-                />
-              </div>
-            </>
+            <div className="grid gap-1 text-xs text-slate-600">
+              <span>语义相似度：{String(item.semantic_similarity)}</span>
+              <span>语义距离：{String(item.semantic_distance)}</span>
+              <span className="font-medium text-slate-700">
+                距离等级：{item.semantic_distance_level || "未知"}
+              </span>
+            </div>
           ) : (
             <p className="text-xs text-slate-500">暂无距离数据</p>
           )}
