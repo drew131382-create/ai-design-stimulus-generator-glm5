@@ -14,18 +14,18 @@ const REQUIRED_FIELDS = [
     component: "input"
   },
   {
-    key: "goal",
-    label: "目标（goal）*",
-    placeholder: "例如：降低漏服误服风险，并减少家属远程管理压力。",
+    key: "scenario",
+    label: "场景（scenario）*",
+    placeholder: "例如：早晚服药前，用户需要快速确认药盒状态并获得提醒。",
     component: "textarea"
   }
 ];
 
 const OPTIONAL_FIELDS = [
   {
-    key: "scenario",
-    label: "场景（scenario）",
-    placeholder: "例如：早晚服药前，用户需要快速确认药盒状态并获得提醒。",
+    key: "goal",
+    label: "目标（goal）",
+    placeholder: "例如：降低漏服误服风险，并减少家属远程管理压力。",
     component: "textarea"
   },
   {
@@ -126,7 +126,7 @@ export default function PromptComposer({
             <span className="text-xs font-medium text-slate-500">轻量模式</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            只需填写 3 个关键字段（product / user / goal）即可生成结果。
+            只需填写 3 个关键字段（product / user / scenario）即可生成结果。
           </p>
         </div>
 

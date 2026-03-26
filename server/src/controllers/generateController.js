@@ -47,8 +47,8 @@ const taskSchema = z
   .object({
     product: requiredTextField("product", 2, 30),
     user: requiredTextField("user", 2, 50),
-    goal: requiredTextField("goal", 10, 150),
-    scenario: optionalTextField(150),
+    scenario: requiredTextField("scenario", 10, 150),
+    goal: optionalTextField(150),
     constraints: optionalTextField(150),
     styleTags: tagsField,
     emotionTags: tagsField,
@@ -72,7 +72,7 @@ export const generateStimuliController = asyncHandler(async (req, res) => {
 
   const task = {
     ...parsed.data,
-    scenario: parsed.data.scenario || parsed.data.goal,
+    goal: parsed.data.goal || parsed.data.scenario,
     constraints: parsed.data.constraints || "无硬性限制"
   };
   const generated = await generateStimuli(task);

@@ -17,11 +17,11 @@ function renderValue(value) {
 const KEY_FIELDS = [
   { key: "product", label: "产品" },
   { key: "user", label: "用户" },
-  { key: "goal", label: "目标" }
+  { key: "scenario", label: "场景" }
 ];
 
 const OPTIONAL_FIELDS = [
-  { key: "scenario", label: "场景" },
+  { key: "goal", label: "目标" },
   { key: "constraints", label: "约束" },
   { key: "styleTags", label: "风格标签", isArray: true },
   { key: "emotionTags", label: "情绪标签", isArray: true },
