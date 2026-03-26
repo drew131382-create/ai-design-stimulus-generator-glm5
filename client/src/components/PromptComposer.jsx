@@ -17,7 +17,7 @@ const REQUIRED_FIELDS = [
     key: "scenario",
     label: "场景（scenario）*",
     placeholder: "例如：早晚服药前，用户需要快速确认药盒状态并获得提醒。",
-    component: "textarea"
+    component: "input"
   }
 ];
 
@@ -133,12 +133,9 @@ export default function PromptComposer({
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           {REQUIRED_FIELDS.map((field) => (
-            <div
-              key={field.key}
-              className={field.component === "textarea" ? "md:col-span-2" : ""}
-            >
+            <div key={field.key}>
               <Field
                 field={field}
                 value={form[field.key] || ""}
