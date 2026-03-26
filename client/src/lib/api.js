@@ -4,7 +4,7 @@
 
 const RETRYABLE_STATUS = new Set([502, 503, 504]);
 const MAX_RETRIES = 3;
-const REQUEST_TIMEOUT_MS = 70000;
+const REQUEST_TIMEOUT_MS = 180000;
 
 /**
  * @typedef {"\u5f88\u8fd1" | "\u4e2d\u7b49" | "\u8f83\u8fdc" | "\u5f88\u8fdc" | null} SemanticDistanceLevel
