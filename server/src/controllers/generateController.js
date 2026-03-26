@@ -12,6 +12,13 @@ function requiredTextField(label, min, max) {
     .max(max, `${label} 需 ${min}-${max} 字`);
 }
 
+function requiredTextNoMaxField(label, min = 1) {
+  return z
+    .string({ required_error: `${label} 为必填项` })
+    .trim()
+    .min(min, `${label} 不能为空`);
+}
+
 function optionalTextField(max = 500) {
   return z
     .string()
@@ -47,7 +54,7 @@ const taskSchema = z
   .object({
     product: requiredTextField("product", 2, 30),
     user: requiredTextField("user", 2, 50),
-    scenario: requiredTextField("scenario", 5, 150),
+    scenario: requiredTextNoMaxField("scenario", 1),
     goal: optionalTextField(150),
     constraints: optionalTextField(150),
     styleTags: tagsField,

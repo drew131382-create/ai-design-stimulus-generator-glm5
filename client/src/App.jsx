@@ -63,8 +63,8 @@ function validateTask(form) {
     errors.user = "user 需 2-50 字";
   }
 
-  if (!validateLength(task.scenario, 5, 150)) {
-    errors.scenario = "scenario 需 5-150 字";
+  if (!task.scenario) {
+    errors.scenario = "scenario 不能为空";
   }
 
   return {
