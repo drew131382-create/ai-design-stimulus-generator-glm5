@@ -80,7 +80,6 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const abortRef = useRef(null);
   const { selection, selectedItem, selectItem } = useStimulusSelection(result);
 
@@ -89,34 +88,6 @@ export default function App() {
       abortRef.current?.abort();
     };
   }, []);
-
-  useEffect(() => {
-    if (!isResultModalOpen) {
-      return undefined;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isResultModalOpen]);
-
-  useEffect(() => {
-    if (!isResultModalOpen) {
-      return undefined;
-    }
-
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") {
-        setIsResultModalOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isResultModalOpen]);
 
   const handleFieldChange = (key, value) => {
     setTaskForm((current) => ({
@@ -150,7 +121,6 @@ export default function App() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setIsResultModalOpen(true);
     setLoading(true);
     setError("");
 
@@ -188,97 +158,35 @@ export default function App() {
         />
 
         <section className="space-y-5">
-          {!isResultModalOpen && loading ? (
-            <StatusBlock type="loading" message="正在生成刺激词..." />
-          ) : null}
+          {loading ? <StatusBlock type="loading" message="正在生成刺激词..." /> : null}
 
-          {!isResultModalOpen && !loading && error ? (
-            <StatusBlock type="error" message={error} />
-          ) : null}
+          {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
           {!loading && !error && !result ? (
-            <StatusBlock
-              type="empty"
-              message="填写任务后生成结果会以弹窗形式展示。"
-            />
+            <StatusBlock type="empty" message="填写任务后生成结果会显示在下方。" />
           ) : null}
 
-          {!loading && !error && result && !isResultModalOpen ? (
-            <section className="rounded-[28px] border border-slate-200/80 bg-white/80 p-6 shadow-panel">
-              <p className="text-sm text-slate-600">结果已生成，可重新打开弹窗查看。</p>
-              <button
-                type="button"
-                onClick={() => setIsResultModalOpen(true)}
-                className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition duration-200 hover:bg-slate-700"
-              >
-                打开结果弹窗
-              </button>
-            </section>
+          {!loading && !error && result ? (
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(360px,1fr)] xl:items-start">
+              <div className="grid gap-5 xl:grid-cols-3">
+                {STIMULUS_GROUPS.map((group) => (
+                  <StimulusColumn
+                    key={group.key}
+                    group={group}
+                    items={result[group.key]}
+                    selection={selection}
+                    onSelect={selectItem}
+                  />
+                ))}
+              </div>
+
+              <div className="xl:sticky xl:top-0">
+                <DetailPanel selection={selection} selectedItem={selectedItem} />
+              </div>
+            </div>
           ) : null}
         </section>
       </main>
-
-      {isResultModalOpen ? (
-        <div
-          className="fixed inset-0 z-50 bg-slate-900/45 p-4 backdrop-blur-sm md:p-6"
-          onClick={(event) => {
-            if (event.currentTarget === event.target) {
-              setIsResultModalOpen(false);
-            }
-          }}
-        >
-          <section className="mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden rounded-[28px] border border-slate-200/90 bg-shell shadow-2xl">
-            <header className="flex items-center justify-between border-b border-slate-200/80 bg-white/85 px-5 py-4 md:px-6">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">设计刺激结果</h2>
-                <p className="text-xs text-slate-500">near / medium / far 三组结构化结果</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsResultModalOpen(false)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-lg text-slate-600 transition hover:bg-slate-100"
-                aria-label="关闭弹窗"
-              >
-                ×
-              </button>
-            </header>
-
-            <div className="flex-1 overflow-y-auto p-5 md:p-6">
-              {loading ? (
-                <div className="mx-auto max-w-xl">
-                  <StatusBlock type="loading" message="正在生成刺激词..." />
-                </div>
-              ) : null}
-
-              {!loading && error ? (
-                <div className="mx-auto max-w-xl">
-                  <StatusBlock type="error" message={error} />
-                </div>
-              ) : null}
-
-              {!loading && !error && result ? (
-                <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(360px,1fr)] xl:items-start">
-                  <div className="grid gap-5 xl:grid-cols-3">
-                    {STIMULUS_GROUPS.map((group) => (
-                      <StimulusColumn
-                        key={group.key}
-                        group={group}
-                        items={result[group.key]}
-                        selection={selection}
-                        onSelect={selectItem}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="xl:sticky xl:top-0">
-                    <DetailPanel selection={selection} selectedItem={selectedItem} />
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </section>
-        </div>
-      ) : null}
     </div>
   );
 }
