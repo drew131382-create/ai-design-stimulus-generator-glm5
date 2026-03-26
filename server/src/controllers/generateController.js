@@ -47,7 +47,7 @@ const taskSchema = z
   .object({
     product: requiredTextField("product", 2, 30),
     user: requiredTextField("user", 2, 50),
-    scenario: requiredTextField("scenario", 10, 150),
+    scenario: requiredTextField("scenario", 5, 150),
     goal: optionalTextField(150),
     constraints: optionalTextField(150),
     styleTags: tagsField,

@@ -64,8 +64,8 @@ function validateTask(form) {
     errors.user = "user 需 2-50 字";
   }
 
-  if (!validateLength(task.scenario, 10, 150)) {
-    errors.scenario = "scenario 需 10-150 字";
+  if (!validateLength(task.scenario, 5, 150)) {
+    errors.scenario = "scenario 需 5-150 字";
   }
 
   return {
