@@ -30,9 +30,9 @@ services:
       - key: MODELSCOPE_API_KEY
         sync: false
       - key: MODELSCOPE_BASE_URL
-        sync: false
+        value: https://api-inference.modelscope.cn/v1
       - key: MODELSCOPE_MODEL
-        value: glm-5
+        value: ZhipuAI/GLM-5
       - key: ZHIPU_API_KEY
         sync: false
       - key: ZHIPU_BASE_URL
