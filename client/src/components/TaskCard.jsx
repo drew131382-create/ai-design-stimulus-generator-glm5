@@ -4,30 +4,30 @@
 
 function renderValue(value) {
   if (Array.isArray(value)) {
-    return value.length > 0 ? value.join(", ") : "Not provided";
+    return value.length > 0 ? value.join("，") : "未填写";
   }
 
   if (hasText(value)) {
     return value.trim();
   }
 
-  return "Not provided";
+  return "未填写";
 }
 
 const KEY_FIELDS = [
-  { key: "product", label: "product" },
-  { key: "user", label: "user" },
-  { key: "goal", label: "goal" }
+  { key: "product", label: "产品" },
+  { key: "user", label: "用户" },
+  { key: "goal", label: "目标" }
 ];
 
 const OPTIONAL_FIELDS = [
-  { key: "scenario", label: "scenario" },
-  { key: "constraints", label: "constraints" },
-  { key: "styleTags", label: "styleTags", isArray: true },
-  { key: "emotionTags", label: "emotionTags", isArray: true },
-  { key: "notes", label: "notes" },
-  { key: "existingIdeas", label: "existingIdeas" },
-  { key: "avoidDirections", label: "avoidDirections" }
+  { key: "scenario", label: "场景" },
+  { key: "constraints", label: "约束" },
+  { key: "styleTags", label: "风格标签", isArray: true },
+  { key: "emotionTags", label: "情绪标签", isArray: true },
+  { key: "notes", label: "补充说明" },
+  { key: "existingIdeas", label: "已有想法" },
+  { key: "avoidDirections", label: "避免方向" }
 ];
 
 export default function TaskCard({ task }) {
@@ -48,9 +48,9 @@ export default function TaskCard({ task }) {
   return (
     <section className="rounded-[24px] border border-slate-200/80 bg-white/85 p-5 shadow-panel backdrop-blur">
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-base font-semibold text-slate-900">Task Card</h3>
+        <h3 className="text-base font-semibold text-slate-900">任务卡</h3>
         <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500">
-          Key Info
+          关键信息
         </span>
       </div>
 

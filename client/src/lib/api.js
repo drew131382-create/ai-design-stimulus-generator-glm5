@@ -53,7 +53,7 @@ function delay(ms) {
 function createTimeoutSignal(externalSignal, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => {
-    controller.abort(new Error("Request timeout"));
+    controller.abort(new Error("请求超时"));
   }, timeoutMs);
 
   if (externalSignal) {

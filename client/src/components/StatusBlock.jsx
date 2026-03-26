@@ -1,4 +1,4 @@
-import { STIMULUS_GROUPS } from "../lib/categories";
+﻿import { STIMULUS_GROUPS } from "../lib/categories";
 import LoadingDots from "./LoadingDots";
 
 function SkeletonColumn({ group }) {
@@ -36,7 +36,7 @@ export default function StatusBlock({ type, message }) {
               <LoadingDots />
             </div>
             <p className="text-sm leading-6 text-slate-600">
-              正在扩展语义距离、构建结构化结果，你可以继续思考下一轮输入方向。
+              正在补充语义距离并整理结构化结果，你可以先思考下一轮输入方向。
             </p>
             <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
               <div className="loading-progress h-full rounded-full bg-slate-500/80" />

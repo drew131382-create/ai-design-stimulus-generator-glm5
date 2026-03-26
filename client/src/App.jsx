@@ -57,15 +57,15 @@ function validateTask(form) {
   const errors = {};
 
   if (!validateLength(task.product, 2, 30)) {
-    errors.product = "product must be 2-30 chars";
+    errors.product = "product 需 2-30 字";
   }
 
   if (!validateLength(task.user, 2, 50)) {
-    errors.user = "user must be 2-50 chars";
+    errors.user = "user 需 2-50 字";
   }
 
   if (!validateLength(task.goal, 10, 150)) {
-    errors.goal = "goal must be 10-150 chars";
+    errors.goal = "goal 需 10-150 字";
   }
 
   return {
@@ -114,7 +114,7 @@ export default function App() {
 
     if (!valid) {
       setFormErrors(errors);
-      setError(Object.values(errors)[0] || "Please complete required fields");
+      setError(Object.values(errors)[0] || "请完善必填字段后再生成");
       return;
     }
 
@@ -132,7 +132,7 @@ export default function App() {
       });
     } catch (requestError) {
       if (requestError.name !== "AbortError") {
-        setError(requestError.message || "Generation failed. Please retry.");
+        setError(requestError.message || "生成失败，请稍后重试。");
       }
     } finally {
       setLoading(false);
@@ -162,22 +162,22 @@ export default function App() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                Design Stimulus Results
+                设计刺激结果
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Click any card to inspect details and rationale.
+                点击任意卡片，可查看解释说明与设计方向。
               </p>
             </div>
           </div>
 
-          {loading ? <StatusBlock type="loading" message="Generating stimuli..." /> : null}
+          {loading ? <StatusBlock type="loading" message="正在生成刺激词..." /> : null}
 
           {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
           {!loading && !error && !result ? (
             <StatusBlock
               type="empty"
-              message="Fill the task and generate near / medium / far structured stimuli."
+              message="填写任务后即可生成 near / medium / far 三组结构化刺激词。"
             />
           ) : null}
 

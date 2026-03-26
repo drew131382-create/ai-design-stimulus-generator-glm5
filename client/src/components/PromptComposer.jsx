@@ -3,20 +3,20 @@
 const REQUIRED_FIELDS = [
   {
     key: "product",
-    label: "product *",
-    placeholder: "e.g. Senior-friendly smart pill box",
+    label: "产品（product）*",
+    placeholder: "例如：适老化智能药盒",
     component: "input"
   },
   {
     key: "user",
-    label: "user *",
-    placeholder: "e.g. Elderly people living alone",
+    label: "用户（user）*",
+    placeholder: "例如：独居高龄老人",
     component: "input"
   },
   {
     key: "goal",
-    label: "goal *",
-    placeholder: "e.g. Reduce missed doses and improve medication confidence.",
+    label: "目标（goal）*",
+    placeholder: "例如：降低漏服误服风险，并减少家属远程管理压力。",
     component: "textarea"
   }
 ];
@@ -24,44 +24,44 @@ const REQUIRED_FIELDS = [
 const OPTIONAL_FIELDS = [
   {
     key: "scenario",
-    label: "scenario",
-    placeholder: "e.g. Before morning/evening medication, users need quick status checks.",
+    label: "场景（scenario）",
+    placeholder: "例如：早晚服药前，用户需要快速确认药盒状态并获得提醒。",
     component: "textarea"
   },
   {
     key: "constraints",
-    label: "constraints",
-    placeholder: "e.g. low cost, simple interaction, offline reminders",
+    label: "约束（constraints）",
+    placeholder: "例如：低成本、操作简单、支持离线提醒",
     component: "textarea"
   },
   {
     key: "styleTags",
-    label: "styleTags",
-    placeholder: "e.g. gentle, trustworthy (comma-separated)",
+    label: "风格标签（styleTags）",
+    placeholder: "例如：温和、可信赖（逗号分隔）",
     component: "input"
   },
   {
     key: "emotionTags",
-    label: "emotionTags",
-    placeholder: "e.g. relief, control (comma-separated)",
+    label: "情绪标签（emotionTags）",
+    placeholder: "例如：安心、掌控感（逗号分隔）",
     component: "input"
   },
   {
     key: "notes",
-    label: "notes",
-    placeholder: "other notes",
+    label: "补充说明（notes）",
+    placeholder: "其他补充信息",
     component: "textarea"
   },
   {
     key: "existingIdeas",
-    label: "existingIdeas",
-    placeholder: "existing ideas",
+    label: "已有想法（existingIdeas）",
+    placeholder: "例如：语音提醒 + 误触防护",
     component: "textarea"
   },
   {
     key: "avoidDirections",
-    label: "avoidDirections",
-    placeholder: "what to avoid",
+    label: "避免方向（avoidDirections）",
+    placeholder: "例如：避免复杂触屏交互",
     component: "textarea"
   }
 ];
@@ -122,11 +122,11 @@ export default function PromptComposer({
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-900">Design Task Input</h2>
-            <span className="text-xs font-medium text-slate-500">Light Mode</span>
+            <h2 className="text-xl font-semibold text-slate-900">设计任务输入</h2>
+            <span className="text-xs font-medium text-slate-500">轻量模式</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            Fill only 3 key fields (product / user / goal) to generate results.
+            只需填写 3 个关键字段（product / user / goal）即可生成结果。
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function PromptComposer({
 
         <details className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
           <summary className="cursor-pointer text-sm font-medium text-slate-700">
-            Optional fields
+            可选字段
           </summary>
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -172,10 +172,10 @@ export default function PromptComposer({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-500">
-            Returns near / medium / far groups with semantic distance.
+            将返回 near / medium / far 三组刺激词及语义距离信息。
             {loading ? (
               <span className="ml-2 inline-flex items-center gap-2 text-slate-600">
-                Processing
+                处理中
                 <LoadingDots />
               </span>
             ) : null}
@@ -192,10 +192,10 @@ export default function PromptComposer({
                 {loading ? (
                   <span className="inline-flex items-center gap-2">
                     <span className="spinner-ring" />
-                    Regenerating
+                    重新生成中
                   </span>
                 ) : (
-                  "Regenerate"
+                  "重新生成"
                 )}
               </button>
             ) : null}
@@ -209,10 +209,10 @@ export default function PromptComposer({
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="spinner-ring border-white/90 border-t-transparent" />
-                  Generating
+                  生成中
                 </span>
               ) : (
-                "Generate"
+                "生成刺激词"
               )}
             </button>
           </div>

@@ -40,7 +40,7 @@ export default function DetailPanel({ selection, selectedItem }) {
         <div className="grid gap-4 md:grid-cols-2">
           <article className="rounded-2xl border border-slate-200 bg-slate-50/85 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Explanation
+              解释说明
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
               {selectedItem.explanation || selectedItem.inspiration}
@@ -49,7 +49,7 @@ export default function DetailPanel({ selection, selectedItem }) {
 
           <article className="rounded-2xl border border-slate-200 bg-slate-50/85 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Direction
+              设计方向
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
               {selectedItem.direction || selectedItem.explanation}
