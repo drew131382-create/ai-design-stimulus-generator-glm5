@@ -128,6 +128,9 @@ export default function PromptComposer({
           <p className="text-sm leading-6 text-slate-600">
             只需填写 3 个关键字段（product / user / scenario）即可生成结果。
           </p>
+          <p className="text-xs leading-5 text-slate-500">
+            注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。
+          </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

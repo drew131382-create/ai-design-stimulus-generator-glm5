@@ -150,6 +150,7 @@ export default function App() {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    setIsResultModalOpen(true);
     setLoading(true);
     setError("");
 
@@ -157,7 +158,6 @@ export default function App() {
       const payload = await generateStimuli(task, controller.signal);
       startTransition(() => {
         setResult(payload);
-        setIsResultModalOpen(true);
       });
     } catch (requestError) {
       if (requestError.name !== "AbortError") {
@@ -188,9 +188,13 @@ export default function App() {
         />
 
         <section className="space-y-5">
-          {loading ? <StatusBlock type="loading" message="正在生成刺激词..." /> : null}
+          {!isResultModalOpen && loading ? (
+            <StatusBlock type="loading" message="正在生成刺激词..." />
+          ) : null}
 
-          {!loading && error ? <StatusBlock type="error" message={error} /> : null}
+          {!isResultModalOpen && !loading && error ? (
+            <StatusBlock type="error" message={error} />
+          ) : null}
 
           {!loading && !error && !result ? (
             <StatusBlock
@@ -214,7 +218,7 @@ export default function App() {
         </section>
       </main>
 
-      {result && isResultModalOpen ? (
+      {isResultModalOpen ? (
         <div
           className="fixed inset-0 z-50 bg-slate-900/45 p-4 backdrop-blur-sm md:p-6"
           onClick={(event) => {
@@ -240,23 +244,37 @@ export default function App() {
             </header>
 
             <div className="flex-1 overflow-y-auto p-5 md:p-6">
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(360px,1fr)] xl:items-start">
-                <div className="grid gap-5 xl:grid-cols-3">
-                  {STIMULUS_GROUPS.map((group) => (
-                    <StimulusColumn
-                      key={group.key}
-                      group={group}
-                      items={result[group.key]}
-                      selection={selection}
-                      onSelect={selectItem}
-                    />
-                  ))}
+              {loading ? (
+                <div className="mx-auto max-w-xl">
+                  <StatusBlock type="loading" message="正在生成刺激词..." />
                 </div>
+              ) : null}
 
-                <div className="xl:sticky xl:top-0">
-                  <DetailPanel selection={selection} selectedItem={selectedItem} />
+              {!loading && error ? (
+                <div className="mx-auto max-w-xl">
+                  <StatusBlock type="error" message={error} />
                 </div>
-              </div>
+              ) : null}
+
+              {!loading && !error && result ? (
+                <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(360px,1fr)] xl:items-start">
+                  <div className="grid gap-5 xl:grid-cols-3">
+                    {STIMULUS_GROUPS.map((group) => (
+                      <StimulusColumn
+                        key={group.key}
+                        group={group}
+                        items={result[group.key]}
+                        selection={selection}
+                        onSelect={selectItem}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="xl:sticky xl:top-0">
+                    <DetailPanel selection={selection} selectedItem={selectedItem} />
+                  </div>
+                </div>
+              ) : null}
             </div>
           </section>
         </div>
