@@ -9,9 +9,7 @@ const rawItemSchema = z.object({
 });
 
 const rawResponseSchema = z.object({
-  near: z.array(rawItemSchema).min(10),
-  medium: z.array(rawItemSchema).min(10),
-  far: z.array(rawItemSchema).min(10)
+  candidates: z.array(rawItemSchema).min(30)
 });
 
 function normalizeText(value) {
@@ -22,8 +20,9 @@ function normalizeText(value) {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function collectUniqueItems(items, label, globalSeen) {
+function collectUniqueItems(items, label, limit = 30) {
   const uniqueItems = [];
+  const seen = new Set();
 
   for (const item of items) {
     const explanation = normalizeText(
@@ -44,14 +43,14 @@ function collectUniqueItems(items, label, globalSeen) {
 
     const token = normalizedItem.word.toLocaleLowerCase();
 
-    if (globalSeen.has(token)) {
+    if (seen.has(token)) {
       continue;
     }
 
-    globalSeen.add(token);
+    seen.add(token);
     uniqueItems.push(normalizedItem);
 
-    if (uniqueItems.length === 10) {
+    if (uniqueItems.length === limit) {
       return uniqueItems;
     }
   }
@@ -59,13 +58,8 @@ function collectUniqueItems(items, label, globalSeen) {
   throw new HttpError(502, `AI returned insufficient unique ${label} items`);
 }
 
-export function normalizeStimulusPayload(payload) {
+export function normalizeStimulusCandidates(payload) {
   const parsed = rawResponseSchema.parse(payload);
-  const globalSeen = new Set();
 
-  return {
-    near: collectUniqueItems(parsed.near, "near", globalSeen),
-    medium: collectUniqueItems(parsed.medium, "medium", globalSeen),
-    far: collectUniqueItems(parsed.far, "far", globalSeen)
-  };
+  return collectUniqueItems(parsed.candidates, "candidate", 30);
 }

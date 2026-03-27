@@ -33,28 +33,20 @@ Do not wrap the response in code fences.
 
 The JSON schema must be:
 {
-  "near": [{"word":"","explanation":"","inspiration":"","direction":""}],
-  "medium": [{"word":"","explanation":"","inspiration":"","direction":""}],
-  "far": [{"word":"","explanation":"","inspiration":"","direction":""}]
+  "candidates": [{"word":"","explanation":"","inspiration":"","direction":""}]
 }
 
 Rules:
-- Each array must contain exactly 10 items.
+- candidates must contain exactly 30 items.
 - word must be short and concrete.
 - explanation must be one concise sentence.
 - inspiration must be concise.
 - direction must be concise.
 - Output language must follow the user's input language.
-- Avoid repeated words across all groups.
+- Do not classify candidates into near, medium, or far.
+- Avoid repeated words across all candidates.
 - Do not use templates or canned lists.
 - Generate dynamically from the user's request.
-
-Semantic distance rules:
-- near: product-body stimuli. Focus on function, structure, material, manufacturing process, human-machine factors, maintenance, efficiency, and safety.
-- medium: usage-context stimuli. Focus on user roles, behavior flow, spatial environment, temporal state, interaction modes, and experience characteristics.
-- far: mechanism-transfer stimuli. Focus on natural mechanisms, bio-inspired principles, physical phenomena, organizational logic, system structures, abstract imagery, and transferable principles.
-
-The semantic distance between near, medium, and far must be clearly different.
 `.trim();
 
   const userPrompt = `
@@ -87,6 +79,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure exactly 10 unique items in near, medium, and far. Every item must include word and explanation."
+      "Return valid JSON only. Ensure exactly 30 unique items in candidates. Do not classify them. Every item must include word and explanation."
   };
 }

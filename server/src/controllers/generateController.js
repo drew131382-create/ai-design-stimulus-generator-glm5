@@ -2,7 +2,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { HttpError } from "../utils/httpError.js";
 import { generateStimuli } from "../services/aiService.js";
-import { attachSemanticDistance } from "../services/semanticDistanceService.js";
+import { regroupStimuliByTaskSemantics } from "../services/relativeGroupingService.js";
 
 function requiredTextField(label, min, max) {
   return z
@@ -79,8 +79,8 @@ export const generateStimuliController = asyncHandler(async (req, res) => {
     goal: parsed.data.goal || parsed.data.scenario || parsed.data.product,
     constraints: parsed.data.constraints || "无硬性限制"
   };
-  const generated = await generateStimuli(task);
-  const result = await attachSemanticDistance(task, generated);
+  const candidates = await generateStimuli(task);
+  const result = await regroupStimuliByTaskSemantics(task, candidates);
 
   res.status(200).json({
     task,
