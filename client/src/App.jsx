@@ -59,14 +59,6 @@ function validateTask(form) {
     errors.product = "product 需 2-30 字";
   }
 
-  if (!validateLength(task.user, 2, 50)) {
-    errors.user = "user 需 2-50 字";
-  }
-
-  if (!task.scenario) {
-    errors.scenario = "scenario 不能为空";
-  }
-
   return {
     task,
     errors,

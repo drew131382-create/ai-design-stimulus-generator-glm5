@@ -6,22 +6,22 @@ const REQUIRED_FIELDS = [
     label: "产品（product）*",
     placeholder: "例如：适老化智能药盒",
     component: "input"
-  },
+  }
+];
+
+const OPTIONAL_FIELDS = [
   {
     key: "user",
-    label: "用户（user）*",
+    label: "用户（user）",
     placeholder: "例如：独居高龄老人",
     component: "input"
   },
   {
     key: "scenario",
-    label: "场景（scenario）*",
+    label: "场景（scenario）",
     placeholder: "例如：早晚服药前，用户需要快速确认药盒状态并获得提醒。",
     component: "input"
-  }
-];
-
-const OPTIONAL_FIELDS = [
+  },
   {
     key: "goal",
     label: "目标（goal）",
@@ -126,14 +126,14 @@ export default function PromptComposer({
             <span className="text-xs font-medium text-slate-500">轻量模式</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            只需填写 3 个关键字段（product / user / scenario）即可生成结果。
+            仅 product 为必填，user 和 scenario 已调整为可选字段。
           </p>
           <p className="text-xs leading-5 text-slate-500">
             注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-1">
           {REQUIRED_FIELDS.map((field) => (
             <div key={field.key}>
               <Field

@@ -12,11 +12,8 @@ function requiredTextField(label, min, max) {
     .max(max, `${label} 需 ${min}-${max} 字`);
 }
 
-function requiredTextNoMaxField(label, min = 1) {
-  return z
-    .string({ required_error: `${label} 为必填项` })
-    .trim()
-    .min(min, `${label} 不能为空`);
+function optionalTextNoMaxField() {
+  return z.string().trim().optional().default("");
 }
 
 function optionalTextField(max = 500) {
@@ -53,8 +50,8 @@ const tagsField = z
 const taskSchema = z
   .object({
     product: requiredTextField("product", 2, 30),
-    user: requiredTextField("user", 2, 50),
-    scenario: requiredTextNoMaxField("scenario", 1),
+    user: optionalTextField(50),
+    scenario: optionalTextNoMaxField(),
     goal: optionalTextField(150),
     constraints: optionalTextField(150),
     styleTags: tagsField,
@@ -79,7 +76,7 @@ export const generateStimuliController = asyncHandler(async (req, res) => {
 
   const task = {
     ...parsed.data,
-    goal: parsed.data.goal || parsed.data.scenario,
+    goal: parsed.data.goal || parsed.data.scenario || parsed.data.product,
     constraints: parsed.data.constraints || "无硬性限制"
   };
   const generated = await generateStimuli(task);
