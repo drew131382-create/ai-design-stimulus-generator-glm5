@@ -44,7 +44,7 @@ function normalizeNullDistance(item) {
   };
 }
 
-function cosineSimilarity(vectorA, vectorB) {
+export function cosineSimilarity(vectorA, vectorB) {
   if (!Array.isArray(vectorA) || !Array.isArray(vectorB)) {
     return null;
   }
@@ -77,16 +77,21 @@ function cosineSimilarity(vectorA, vectorB) {
   return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-async function requestEmbeddings(input) {
-  if (!env.ZHIPU_API_KEY) {
-    throw new HttpError(500, "ZHIPU_API_KEY is missing");
+export async function requestEmbeddings(input) {
+  const embeddingApiKey = env.ZHIPU_EMBEDDING_API_KEY || env.ZHIPU_API_KEY;
+
+  if (!embeddingApiKey) {
+    throw new HttpError(
+      500,
+      "ZHIPU_EMBEDDING_API_KEY or ZHIPU_API_KEY is missing"
+    );
   }
 
   const response = await fetch(buildEmbeddingsUrl(), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${env.ZHIPU_API_KEY}`
+      Authorization: `Bearer ${embeddingApiKey}`
     },
     body: JSON.stringify({
       model: env.ZHIPU_EMBEDDING_MODEL,
