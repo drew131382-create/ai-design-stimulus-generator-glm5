@@ -5,11 +5,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://ai-design-stimulus-generator-glm5-api.onrender.com/api/$1"
+      "destination": "https://ai-design-stimulus-generator-glm-api.onrender.com/api/$1"
     },
     {
       "source": "/health",
-      "destination": "https://ai-design-stimulus-generator-glm5-api.onrender.com/health"
+      "destination": "https://ai-design-stimulus-generator-glm-api.onrender.com/health"
     },
     {
       "source": "/(.*)",

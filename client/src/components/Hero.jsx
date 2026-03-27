@@ -17,7 +17,7 @@ export default function Hero() {
             AI 设计刺激词生成器
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 md:text-lg">
-            输入你的设计任务，系统将基于 GLM-5 生成 near / medium / far 三组刺激词，帮助你快速拓展设计方向。
+            输入你的设计任务，系统将基于 GLM 生成 near / medium / far 三组刺激词，帮助你快速拓展设计方向。
           </p>
         </div>
 
