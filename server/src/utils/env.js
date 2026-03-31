@@ -12,7 +12,7 @@ const envSchema = z.object({
     .string()
     .url("ZHIPU_BASE_URL must be a valid URL")
     .default("https://open.bigmodel.cn/api/paas/v4"),
-  ZHIPU_CHAT_MODEL: z.string().min(1).default("glm-4.7-flash"),
+  ZHIPU_CHAT_MODEL: z.string().min(1).default("glm-5"),
   ZHIPU_EMBEDDING_MODEL: z.string().min(1).default("embedding-3"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
   ALLOWED_ORIGIN: z.string().optional()
