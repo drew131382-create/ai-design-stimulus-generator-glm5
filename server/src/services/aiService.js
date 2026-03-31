@@ -1,4 +1,4 @@
-﻿import { env } from "../utils/env.js";
+import { env } from "../utils/env.js";
 import { HttpError } from "../utils/httpError.js";
 import { parseModelJson } from "../utils/extractJson.js";
 import { normalizeStimulusCandidates } from "../utils/responseSchema.js";
@@ -8,13 +8,6 @@ import {
 } from "../prompts/stimulusPrompt.js";
 
 const RETRYABLE_STATUS = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
-
-function buildModelscopeChatCompletionsUrl() {
-  return new URL(
-    "chat/completions",
-    env.MODELSCOPE_BASE_URL.replace(/\/?$/, "/")
-  ).toString();
-}
 
 function buildZhipuChatCompletionsUrl() {
   return new URL(
@@ -55,30 +48,21 @@ async function fetchWithTimeout(url, options, timeoutMs) {
   }
 }
 
-function resolveProviderConfig(provider) {
-  if (provider === "zhipu") {
-    if (!env.ZHIPU_API_KEY) {
-      throw new HttpError(500, "ZHIPU_API_KEY is missing");
-    }
-
-    return {
-      provider,
-      url: buildZhipuChatCompletionsUrl(),
-      apiKey: env.ZHIPU_API_KEY,
-      model: env.ZHIPU_CHAT_MODEL
-    };
+function resolveZhipuConfig() {
+  if (!env.ZHIPU_API_KEY) {
+    throw new HttpError(500, "ZHIPU_API_KEY is missing");
   }
 
   return {
-    provider: "modelscope",
-    url: buildModelscopeChatCompletionsUrl(),
-    apiKey: env.MODELSCOPE_API_KEY,
-    model: env.MODELSCOPE_MODEL
+    provider: "zhipu",
+    url: buildZhipuChatCompletionsUrl(),
+    apiKey: env.ZHIPU_API_KEY,
+    model: env.ZHIPU_CHAT_MODEL
   };
 }
 
-async function requestChatCompletion(messages, provider = "modelscope") {
-  const providerConfig = resolveProviderConfig(provider);
+async function requestChatCompletion(messages) {
+  const providerConfig = resolveZhipuConfig();
   let response;
 
   try {
@@ -101,10 +85,10 @@ async function requestChatCompletion(messages, provider = "modelscope") {
     );
   } catch (error) {
     if (error?.name === "AbortError") {
-      throw new HttpError(504, `${providerConfig.provider} request timed out`);
+      throw new HttpError(504, "zhipu request timed out");
     }
 
-    throw new HttpError(502, `${providerConfig.provider} request failed`, {
+    throw new HttpError(502, "zhipu request failed", {
       reason: error?.message || "Unknown request error"
     });
   }
@@ -121,7 +105,7 @@ async function requestChatCompletion(messages, provider = "modelscope") {
   if (!response.ok) {
     throw new HttpError(
       response.status,
-      payload?.error?.message || `${providerConfig.provider} request failed`,
+      payload?.error?.message || "zhipu request failed",
       payload || rawText
     );
   }
@@ -129,17 +113,13 @@ async function requestChatCompletion(messages, provider = "modelscope") {
   const content = extractContent(payload);
 
   if (!content) {
-    throw new HttpError(
-      502,
-      `${providerConfig.provider} response missing message content`,
-      payload
-    );
+    throw new HttpError(502, "zhipu response missing message content", payload);
   }
 
   return content;
 }
 
-function shouldFallback(error) {
+function shouldRetry(error) {
   if (!(error instanceof HttpError)) {
     return true;
   }
@@ -156,47 +136,29 @@ function shouldFallback(error) {
   );
 }
 
-function logProviderError(provider, attempt, error) {
-  console.error("[aiService] provider request failed", {
-    provider,
-    attempt,
-    statusCode: error?.statusCode || null,
-    message: error?.message || "Unknown AI error"
-  });
-}
-
-function buildProviderOrder() {
-  const order = ["modelscope"];
-
-  if (env.ZHIPU_API_KEY) {
-    order.push("zhipu");
-  }
-
-  return order;
-}
-
 export async function generateStimuli(task) {
   const baseMessages = buildStimulusMessages(task);
   let lastError = null;
-  const providers = buildProviderOrder();
 
-  for (const provider of providers) {
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      const messages =
-        attempt === 0 ? baseMessages : [...baseMessages, buildRetryMessage()];
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const messages =
+      attempt === 0 ? baseMessages : [...baseMessages, buildRetryMessage()];
 
-      try {
-        const rawContent = await requestChatCompletion(messages, provider);
-        const parsedJson = parseModelJson(rawContent);
-        return normalizeStimulusCandidates(parsedJson);
-      } catch (error) {
-        lastError = error;
-        logProviderError(provider, attempt + 1, error);
+    try {
+      const rawContent = await requestChatCompletion(messages);
+      const parsedJson = parseModelJson(rawContent);
+      return normalizeStimulusCandidates(parsedJson);
+    } catch (error) {
+      lastError = error;
+      console.error("[aiService] zhipu request failed", {
+        attempt: attempt + 1,
+        statusCode: error?.statusCode || null,
+        message: error?.message || "Unknown AI error"
+      });
+
+      if (!shouldRetry(error) || attempt === 1) {
+        break;
       }
-    }
-
-    if (!shouldFallback(lastError)) {
-      break;
     }
   }
 
@@ -208,4 +170,3 @@ export async function generateStimuli(task) {
     reason: lastError?.message || "Unknown AI error"
   });
 }
-
