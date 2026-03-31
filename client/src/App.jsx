@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, startTransition } from "react";
+import { useEffect, useRef, useState, startTransition } from "react";
 import Hero from "./components/Hero";
 import PromptComposer from "./components/PromptComposer";
 import StimulusColumn from "./components/StimulusColumn";
@@ -13,23 +13,11 @@ const INITIAL_TASK_FORM = {
   user: "",
   scenario: "",
   goal: "",
-  constraints: "",
-  styleTags: "",
-  emotionTags: "",
-  existingIdeas: "",
-  avoidDirections: "",
-  notes: ""
+  constraints: ""
 };
 
 function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function splitTags(value) {
-  return normalizeText(value)
-    .split(/[,，、\n]/)
-    .map((tag) => tag.trim())
-    .filter(Boolean);
 }
 
 function buildTask(form) {
@@ -38,12 +26,7 @@ function buildTask(form) {
     user: normalizeText(form.user),
     scenario: normalizeText(form.scenario),
     goal: normalizeText(form.goal),
-    constraints: normalizeText(form.constraints),
-    styleTags: splitTags(form.styleTags),
-    emotionTags: splitTags(form.emotionTags),
-    existingIdeas: normalizeText(form.existingIdeas),
-    avoidDirections: normalizeText(form.avoidDirections),
-    notes: normalizeText(form.notes)
+    constraints: normalizeText(form.constraints)
   };
 }
 

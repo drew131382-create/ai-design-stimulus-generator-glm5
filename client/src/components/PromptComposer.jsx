@@ -1,4 +1,4 @@
-﻿import LoadingDots from "./LoadingDots";
+import LoadingDots from "./LoadingDots";
 
 const REQUIRED_FIELDS = [
   {
@@ -32,36 +32,6 @@ const OPTIONAL_FIELDS = [
     key: "constraints",
     label: "约束（constraints）",
     placeholder: "例如：低成本、操作简单、支持离线提醒",
-    component: "textarea"
-  },
-  {
-    key: "styleTags",
-    label: "风格标签（styleTags）",
-    placeholder: "例如：温和、可信赖（逗号分隔）",
-    component: "input"
-  },
-  {
-    key: "emotionTags",
-    label: "情绪标签（emotionTags）",
-    placeholder: "例如：安心、掌控感（逗号分隔）",
-    component: "input"
-  },
-  {
-    key: "notes",
-    label: "补充说明（notes）",
-    placeholder: "其他补充信息",
-    component: "textarea"
-  },
-  {
-    key: "existingIdeas",
-    label: "已有想法（existingIdeas）",
-    placeholder: "例如：语音提醒 + 误触防护",
-    component: "textarea"
-  },
-  {
-    key: "avoidDirections",
-    label: "避免方向（avoidDirections）",
-    placeholder: "例如：避免复杂触屏交互",
     component: "textarea"
   }
 ];
@@ -129,7 +99,7 @@ export default function PromptComposer({
             仅 product 为必填，user 和 scenario 已调整为可选字段。
           </p>
           <p className="text-xs leading-5 text-slate-500">
-            注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。
+            注：语乢距离基于 ZHIPU 的 Embedding-3 模型计算。
           </p>
         </div>
 
