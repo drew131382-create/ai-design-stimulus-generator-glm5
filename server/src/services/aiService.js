@@ -57,7 +57,7 @@ function resolveZhipuConfig() {
     provider: "zhipu",
     url: buildZhipuChatCompletionsUrl(),
     apiKey: env.ZHIPU_API_KEY,
-    model: env.ZHIPU_CHAT_MODEL
+    model: "glm-5"
   };
 }
 
