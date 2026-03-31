@@ -3,7 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import routes from "./routes/generateRoutes.js";
 import { env } from "./utils/env.js";
-import { apiRateLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
 
@@ -56,7 +55,6 @@ app.use(
 );
 
 app.use(express.json({ limit: "1mb" }));
-app.use(apiRateLimiter);
 app.use(routes);
 app.use(notFound);
 app.use(errorHandler);
