@@ -99,7 +99,7 @@ export default function PromptComposer({
             仅 product 为必填，user 和 scenario 已调整为可选字段。
           </p>
           <p className="text-xs leading-5 text-slate-500">
-            注：语乢距离基于 ZHIPU 的 Embedding-3 模型计算。
+            注：语义距离基于 ZHIPU 的 Embedding 模型计算。
           </p>
         </div>
 
@@ -191,3 +191,4 @@ export default function PromptComposer({
     </section>
   );
 }
+
