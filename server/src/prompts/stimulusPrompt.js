@@ -33,15 +33,13 @@ Do not wrap the response in code fences.
 
 The JSON schema must be:
 {
-  "candidates": [{"word":"","explanation":"","inspiration":"","direction":""}]
+  "candidates": [{"word":"","explanation":""}]
 }
 
 Rules:
-- candidates must contain exactly 30 items.
+- candidates must contain at least 40 items.
 - word must be short and concrete.
 - explanation must be one concise sentence.
-- inspiration must be concise.
-- direction must be concise.
 - Output language must follow the user's input language.
 - Do not classify candidates into near, medium, or far.
 - Avoid repeated words across all candidates.
@@ -80,6 +78,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure exactly 30 unique items in candidates. Do not classify them. Every item must include word and explanation."
+      "Return valid JSON only. Ensure at least 40 unique items in candidates. Do not classify them. Every item must include only word and explanation."
   };
 }
