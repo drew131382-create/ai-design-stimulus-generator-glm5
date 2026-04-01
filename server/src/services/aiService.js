@@ -8,6 +8,7 @@ import {
 } from "../prompts/stimulusPrompt.js";
 
 const RETRYABLE_STATUS = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
+const FALLBACK_CHAT_MODELS = ["glm-4-air"];
 
 function buildZhipuChatCompletionsUrl() {
   return new URL(
@@ -48,7 +49,13 @@ async function fetchWithTimeout(url, options, timeoutMs) {
   }
 }
 
-function resolveZhipuConfig() {
+function buildModelCandidates() {
+  return [env.ZHIPU_CHAT_MODEL, ...FALLBACK_CHAT_MODELS].filter(
+    (model, index, list) => typeof model === "string" && model && list.indexOf(model) === index
+  );
+}
+
+function resolveZhipuConfig(model) {
   if (!env.ZHIPU_API_KEY) {
     throw new HttpError(500, "ZHIPU_API_KEY is missing");
   }
@@ -57,66 +64,94 @@ function resolveZhipuConfig() {
     provider: "zhipu",
     url: buildZhipuChatCompletionsUrl(),
     apiKey: env.ZHIPU_API_KEY,
-    model: env.ZHIPU_CHAT_MODEL
+    model
   };
 }
 
 async function requestChatCompletion(messages) {
-  const providerConfig = resolveZhipuConfig();
-  let response;
+  const modelCandidates = buildModelCandidates();
+  let lastError = null;
 
-  try {
-    response = await fetchWithTimeout(
-      providerConfig.url,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${providerConfig.apiKey}`
+  for (const model of modelCandidates) {
+    const providerConfig = resolveZhipuConfig(model);
+    let response;
+
+    try {
+      response = await fetchWithTimeout(
+        providerConfig.url,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${providerConfig.apiKey}`
+          },
+          body: JSON.stringify({
+            model: providerConfig.model,
+            messages,
+            temperature: 0.9,
+            top_p: 0.9
+          })
         },
-        body: JSON.stringify({
-          model: providerConfig.model,
-          messages,
-          temperature: 0.9,
-          top_p: 0.9
-        })
-      },
-      env.LLM_REQUEST_TIMEOUT_MS
-    );
-  } catch (error) {
-    if (error?.name === "AbortError") {
-      throw new HttpError(504, "zhipu request timed out");
+        env.LLM_REQUEST_TIMEOUT_MS
+      );
+    } catch (error) {
+      lastError =
+        error?.name === "AbortError"
+          ? new HttpError(504, "zhipu request timed out", { model })
+          : new HttpError(502, "zhipu request failed", {
+              model,
+              reason: error?.message || "Unknown request error"
+            });
+
+      console.error("[aiService] zhipu transport failed", {
+        model,
+        message: lastError.message,
+        details: lastError.details || null
+      });
+      continue;
     }
 
-    throw new HttpError(502, "zhipu request failed", {
-      reason: error?.message || "Unknown request error"
-    });
+    const rawText = await response.text();
+    let payload = null;
+
+    try {
+      payload = rawText ? JSON.parse(rawText) : null;
+    } catch {
+      payload = null;
+    }
+
+    if (!response.ok) {
+      lastError = new HttpError(
+        response.status,
+        payload?.error?.message || "zhipu request failed",
+        {
+          model,
+          payload: payload || rawText
+        }
+      );
+
+      console.error("[aiService] zhipu response failed", {
+        model,
+        statusCode: response.status,
+        message: lastError.message
+      });
+      continue;
+    }
+
+    const content = extractContent(payload);
+
+    if (!content) {
+      lastError = new HttpError(502, "zhipu response missing message content", {
+        model,
+        payload
+      });
+      continue;
+    }
+
+    return content;
   }
 
-  const rawText = await response.text();
-  let payload = null;
-
-  try {
-    payload = rawText ? JSON.parse(rawText) : null;
-  } catch {
-    payload = null;
-  }
-
-  if (!response.ok) {
-    throw new HttpError(
-      response.status,
-      payload?.error?.message || "zhipu request failed",
-      payload || rawText
-    );
-  }
-
-  const content = extractContent(payload);
-
-  if (!content) {
-    throw new HttpError(502, "zhipu response missing message content", payload);
-  }
-
-  return content;
+  throw lastError || new HttpError(502, "zhipu request failed");
 }
 
 function shouldRetry(error) {
