@@ -41,7 +41,7 @@ export default function StimulusColumn({
             selected={
               selection?.group === group.key && selection?.index === index
             }
-            onClick={() => onSelect(group.key, index)}
+            onClick={() => onSelect(group.key, index, item)}
           />
         ))}
       </div>
