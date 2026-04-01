@@ -30,19 +30,21 @@ function collectUniqueItems(items, label, limit = GROUP_SIZE) {
   const seen = new Set();
 
   for (const item of items) {
-    const explanation = normalizeText(
-      item.explanation ||
-        [item.inspiration, item.direction].filter(Boolean).join(" ")
-    );
+    const explanation = normalizeText(item.explanation || item.inspiration);
+    const direction = normalizeText(item.direction);
 
     const normalizedItem = {
       word: normalizeText(item.word),
       explanation,
       inspiration: normalizeText(item.inspiration) || explanation,
-      direction: normalizeText(item.direction) || explanation
+      direction
     };
 
-    if (!normalizedItem.word || !normalizedItem.explanation) {
+    if (
+      !normalizedItem.word ||
+      !normalizedItem.explanation ||
+      !normalizedItem.direction
+    ) {
       continue;
     }
 
