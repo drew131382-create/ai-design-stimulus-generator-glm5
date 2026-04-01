@@ -1,9 +1,9 @@
 ﻿export const STIMULUS_GROUPS = [
   {
     key: "near",
-    title: "Near 刺激词",
-    shortTitle: "Near",
-    subtitle: "产品本体层：功能、结构、材料、制造、人机、安全、效率等。",
+    title: "产品本体刺激",
+    shortTitle: "Product-Core",
+    subtitle: "用于功能优化、结构创新、材料工艺改进。",
     badgeClass: "bg-near-100 text-near-700 ring-1 ring-inset ring-near-200",
     panelClass: "border-near-200/80 bg-white/80",
     activeClass:
@@ -13,9 +13,9 @@
   },
   {
     key: "medium",
-    title: "Medium 刺激词",
-    shortTitle: "Medium",
-    subtitle: "使用情境层：用户角色、行为流程、空间环境、时间状态、交互方式、体验特征。",
+    title: "使用情境刺激",
+    shortTitle: "Usage-Context",
+    subtitle: "用于场景重构、交互重构、体验创新。",
     badgeClass: "bg-medium-100 text-medium-700 ring-1 ring-inset ring-medium-200",
     panelClass: "border-medium-200/80 bg-white/80",
     activeClass:
@@ -25,9 +25,9 @@
   },
   {
     key: "far",
-    title: "Far 刺激词",
-    shortTitle: "Far",
-    subtitle: "机制迁移层：自然机制、仿生原理、物理现象、组织逻辑、系统结构、抽象意象、可迁移原则。",
+    title: "机制迁移刺激",
+    shortTitle: "Mechanism-Transfer",
+    subtitle: "用于跨领域类比、原理借鉴、系统迁移。",
     badgeClass: "bg-far-100 text-far-700 ring-1 ring-inset ring-far-200",
     panelClass: "border-far-200/80 bg-white/80",
     activeClass: "border-far-500 bg-far-50 shadow-float ring-2 ring-far-200/80",
