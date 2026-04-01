@@ -88,6 +88,9 @@ async function requestChatCompletion(messages) {
           body: JSON.stringify({
             model: providerConfig.model,
             messages,
+            response_format: {
+              type: "json_object"
+            },
             temperature: 0.9,
             top_p: 0.9
           })
