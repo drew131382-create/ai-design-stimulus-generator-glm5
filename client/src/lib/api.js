@@ -167,7 +167,7 @@ function normalizeGeneratePayload(payload) {
   };
 }
 
-async function requestGenerate(prompt, signal) {
+async function requestGenerate(task, signal) {
   const { signal: timeoutSignal, cleanup } = createTimeoutSignal(
     signal,
     REQUEST_TIMEOUT_MS
@@ -179,7 +179,7 @@ async function requestGenerate(prompt, signal) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ task }),
       signal: timeoutSignal
     });
 
@@ -192,7 +192,9 @@ async function requestGenerate(prompt, signal) {
     }
 
     if (!response.ok) {
-      const requestError = new Error(payload?.error?.message || "生成失败，请稍后重试。");
+      const requestError = new Error(
+        payload?.error?.message || "生成失败，请稍后重试。"
+      );
       requestError.status = response.status;
       throw requestError;
     }
@@ -203,12 +205,12 @@ async function requestGenerate(prompt, signal) {
   }
 }
 
-export async function generateStimuli(prompt, signal) {
+export async function generateStimuli(task, signal) {
   let lastError = null;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt += 1) {
     try {
-      return await requestGenerate(prompt, signal);
+      return await requestGenerate(task, signal);
     } catch (error) {
       if (signal?.aborted || error.name === "AbortError") {
         throw error;
