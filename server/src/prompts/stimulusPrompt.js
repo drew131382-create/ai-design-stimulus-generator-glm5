@@ -53,9 +53,9 @@ Rules:
 - Output language must follow the user's input language.
 - If the user's input is Chinese, every word and every explanation must be written in natural Chinese.
 - If the user's input is Chinese, do not output English words, English labels, or transliterated English terms.
-- near = close-to-problem stimuli: product, function, structure, interaction, usability, safety, materials, implementation.
-- medium = scenario-related stimuli: user role, behavior, workflow, environment, service, context, touchpoints, experience.
-- far = cross-domain stimuli: natural mechanisms, metaphors, systems, distant domains, transferable principles, abstract inspirations.
+- near = product ontology layer: function, structure, material, manufacturing, ergonomics, safety, efficiency.
+- medium = usage scenario layer: user role, behavior flow, spatial environment, temporal state, interaction mode, experience trait.
+- far = mechanism transfer layer: natural mechanism, bionic principle, physical phenomenon, organizational logic, system structure, abstract imagery, transferable principle.
 - Avoid repeated words across all candidates.
 - Do not use templates or canned lists.
 - Generate dynamically from the user's request.
@@ -78,6 +78,10 @@ Design request:
 ${promptText ? `prompt: ${promptText}\n` : ""}${detailLines.join("\n")}
 
 ${enforceChinese ? "Important: The input is Chinese. Every candidate word and explanation must be in Chinese only." : ""}
+Classification target:
+- near: 产品本体层，围绕功能、结构、材料、制造、人机、安全、效率等直接生成。
+- medium: 使用情境层，围绕用户角色、行为流程、空间环境、时间状态、交互方式、体验特征等生成。
+- far: 机制迁移层，围绕自然机制、仿生原理、物理现象、组织逻辑、系统结构、抽象意象、可迁移原则等生成。
 
 Generate structured design stimuli that strictly follow the schema.
 `.trim();
@@ -92,6 +96,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include only word and explanation. If the original input is Chinese, output Chinese only."
+      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include only word and explanation. Follow the three-layer classification strictly. If the original input is Chinese, output Chinese only."
   };
 }
