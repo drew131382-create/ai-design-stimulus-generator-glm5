@@ -3,6 +3,7 @@ import { HttpError } from "./httpError.js";
 
 const GROUP_KEYS = ["near", "medium", "far"];
 const GROUP_SIZE = 10;
+const MAX_WORD_LENGTH = 4;
 
 const rawItemSchema = z.object({
   word: z.string(),
@@ -25,6 +26,10 @@ function normalizeText(value) {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function countWordLength(value) {
+  return [...normalizeText(value).replace(/\s+/g, "")].length;
+}
+
 function collectUniqueItems(items, label, limit = GROUP_SIZE) {
   const uniqueItems = [];
   const seen = new Set();
@@ -42,6 +47,7 @@ function collectUniqueItems(items, label, limit = GROUP_SIZE) {
 
     if (
       !normalizedItem.word ||
+      countWordLength(normalizedItem.word) > MAX_WORD_LENGTH ||
       !normalizedItem.explanation ||
       !normalizedItem.direction
     ) {
