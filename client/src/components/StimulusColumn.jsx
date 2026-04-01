@@ -24,10 +24,8 @@ export default function StimulusColumn({
           >
             {group.shortTitle}
           </span>
-          <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
-            {group.title}
-          </h3>
         </div>
+
         <div className="rounded-full border border-slate-200 bg-white/85 px-3 py-1 text-xs font-medium text-slate-500">
           {items.length} 项
         </div>
