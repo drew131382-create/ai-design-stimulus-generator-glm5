@@ -8,29 +8,63 @@ import { STIMULUS_GROUPS } from "./lib/categories";
 import { generateStimuli } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
-const MIN_PROMPT_LENGTH = 2;
-const MAX_PROMPT_LENGTH = 4000;
+const PRODUCT_MIN_LENGTH = 2;
+const PRODUCT_MAX_LENGTH = 30;
+const USER_MAX_LENGTH = 50;
+const GOAL_MAX_LENGTH = 150;
+const CONSTRAINTS_MAX_LENGTH = 150;
+
 const VIEW_MODES = {
   generated: "generated",
   semantic: "semantic"
 };
 
-function normalizePrompt(value) {
+const EMPTY_TASK_FORM = {
+  product: "",
+  user: "",
+  scenario: "",
+  goal: "",
+  constraints: ""
+};
+
+function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function validatePrompt(value) {
-  const prompt = normalizePrompt(value);
+function validateTaskForm(form) {
+  const task = {
+    product: normalizeText(form.product),
+    user: normalizeText(form.user),
+    scenario: normalizeText(form.scenario),
+    goal: normalizeText(form.goal),
+    constraints: normalizeText(form.constraints)
+  };
 
-  if (prompt.length < MIN_PROMPT_LENGTH) {
-    return { prompt, error: `请输入至少 ${MIN_PROMPT_LENGTH} 个字` };
+  const errors = {};
+
+  if (task.product.length < PRODUCT_MIN_LENGTH) {
+    errors.product = `请输入至少 ${PRODUCT_MIN_LENGTH} 个字`;
+  } else if (task.product.length > PRODUCT_MAX_LENGTH) {
+    errors.product = `产品需控制在 ${PRODUCT_MAX_LENGTH} 个字以内`;
   }
 
-  if (prompt.length > MAX_PROMPT_LENGTH) {
-    return { prompt, error: `输入内容不能超过 ${MAX_PROMPT_LENGTH} 字` };
+  if (task.user.length > USER_MAX_LENGTH) {
+    errors.user = `用户需控制在 ${USER_MAX_LENGTH} 个字以内`;
   }
 
-  return { prompt, error: "" };
+  if (task.goal.length > GOAL_MAX_LENGTH) {
+    errors.goal = `目标需控制在 ${GOAL_MAX_LENGTH} 个字以内`;
+  }
+
+  if (task.constraints.length > CONSTRAINTS_MAX_LENGTH) {
+    errors.constraints = `约束条件需控制在 ${CONSTRAINTS_MAX_LENGTH} 个字以内`;
+  }
+
+  return {
+    task,
+    errors,
+    hasError: Object.keys(errors).length > 0
+  };
 }
 
 function normalizeDistance(item) {
@@ -117,7 +151,7 @@ function ClassificationToggle({ mode, onChange }) {
     {
       key: VIEW_MODES.semantic,
       label: "按语义距离分类",
-      description: "基于现有 30 个词的语义距离重新排序后分组"
+      description: "基于已有 30 个词的语义距离重新排序后分组"
     }
   ];
 
@@ -168,8 +202,8 @@ function ClassificationToggle({ mode, onChange }) {
 }
 
 export default function App() {
-  const [promptInput, setPromptInput] = useState("");
-  const [promptError, setPromptError] = useState("");
+  const [taskForm, setTaskForm] = useState(EMPTY_TASK_FORM);
+  const [formErrors, setFormErrors] = useState({});
   const [result, setResult] = useState(null);
   const [viewMode, setViewMode] = useState(VIEW_MODES.generated);
   const [loading, setLoading] = useState(false);
@@ -198,20 +232,26 @@ export default function App() {
     };
   }, []);
 
-  const handlePromptChange = (value) => {
-    setPromptInput(value);
+  const handleFieldChange = (field, value) => {
+    setTaskForm((current) => ({
+      ...current,
+      [field]: value
+    }));
 
-    if (promptError) {
-      setPromptError("");
+    if (formErrors[field]) {
+      setFormErrors((current) => ({
+        ...current,
+        [field]: ""
+      }));
     }
   };
 
   const handleGenerate = async () => {
-    const { prompt, error: validationError } = validatePrompt(promptInput);
+    const { task, errors, hasError } = validateTaskForm(taskForm);
 
-    if (validationError) {
-      setPromptError(validationError);
-      setError(validationError);
+    if (hasError) {
+      setFormErrors(errors);
+      setError(Object.values(errors)[0] || "请检查输入内容");
       return;
     }
 
@@ -221,9 +261,10 @@ export default function App() {
 
     setLoading(true);
     setError("");
+    setFormErrors({});
 
     try {
-      const payload = await generateStimuli(prompt, controller.signal);
+      const payload = await generateStimuli(task, controller.signal);
       startTransition(() => {
         setResult(payload);
         setViewMode(VIEW_MODES.generated);
@@ -248,9 +289,9 @@ export default function App() {
         <Hero />
 
         <PromptComposer
-          prompt={promptInput}
-          promptError={promptError}
-          onPromptChange={handlePromptChange}
+          taskForm={taskForm}
+          formErrors={formErrors}
+          onFieldChange={handleFieldChange}
           onGenerate={handleGenerate}
           loading={loading}
           hasResult={Boolean(result)}
@@ -262,7 +303,10 @@ export default function App() {
           {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
           {!loading && !error && !displayResult ? (
-            <StatusBlock type="empty" message="输入设计任务后，生成结果会显示在下方。" />
+            <StatusBlock
+              type="empty"
+              message="输入产品信息后，生成结果会显示在下方。"
+            />
           ) : null}
 
           {!loading && !error && displayResult ? (
