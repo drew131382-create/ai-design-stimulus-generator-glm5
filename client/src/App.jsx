@@ -8,50 +8,30 @@ import { STIMULUS_GROUPS } from "./lib/categories";
 import { generateStimuli } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
-const INITIAL_TASK_FORM = {
-  product: "",
-  user: "",
-  scenario: "",
-  goal: "",
-  constraints: ""
-};
+const MIN_PROMPT_LENGTH = 2;
+const MAX_PROMPT_LENGTH = 4000;
 
-function normalizeText(value) {
+function normalizePrompt(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function buildTask(form) {
-  return {
-    product: normalizeText(form.product),
-    user: normalizeText(form.user),
-    scenario: normalizeText(form.scenario),
-    goal: normalizeText(form.goal),
-    constraints: normalizeText(form.constraints)
-  };
-}
+function validatePrompt(value) {
+  const prompt = normalizePrompt(value);
 
-function validateLength(value, min, max) {
-  return value.length >= min && value.length <= max;
-}
-
-function validateTask(form) {
-  const task = buildTask(form);
-  const errors = {};
-
-  if (!validateLength(task.product, 2, 30)) {
-    errors.product = "product 需 2-30 字";
+  if (prompt.length < MIN_PROMPT_LENGTH) {
+    return { prompt, error: `请输入至少 ${MIN_PROMPT_LENGTH} 个字` };
   }
 
-  return {
-    task,
-    errors,
-    valid: Object.keys(errors).length === 0
-  };
+  if (prompt.length > MAX_PROMPT_LENGTH) {
+    return { prompt, error: `输入内容不能超过 ${MAX_PROMPT_LENGTH} 字` };
+  }
+
+  return { prompt, error: "" };
 }
 
 export default function App() {
-  const [taskForm, setTaskForm] = useState(INITIAL_TASK_FORM);
-  const [formErrors, setFormErrors] = useState({});
+  const [promptInput, setPromptInput] = useState("");
+  const [promptError, setPromptError] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -64,31 +44,20 @@ export default function App() {
     };
   }, []);
 
-  const handleFieldChange = (key, value) => {
-    setTaskForm((current) => ({
-      ...current,
-      [key]: value
-    }));
+  const handlePromptChange = (value) => {
+    setPromptInput(value);
 
-    setFormErrors((current) => {
-      if (!current[key]) {
-        return current;
-      }
-
-      const next = {
-        ...current
-      };
-      delete next[key];
-      return next;
-    });
+    if (promptError) {
+      setPromptError("");
+    }
   };
 
   const handleGenerate = async () => {
-    const { task, errors, valid } = validateTask(taskForm);
+    const { prompt, error: validationError } = validatePrompt(promptInput);
 
-    if (!valid) {
-      setFormErrors(errors);
-      setError(Object.values(errors)[0] || "请完善必填字段后再生成");
+    if (validationError) {
+      setPromptError(validationError);
+      setError(validationError);
       return;
     }
 
@@ -100,7 +69,7 @@ export default function App() {
     setError("");
 
     try {
-      const payload = await generateStimuli(task, controller.signal);
+      const payload = await generateStimuli(prompt, controller.signal);
       startTransition(() => {
         setResult(payload);
       });
@@ -124,9 +93,9 @@ export default function App() {
         <Hero />
 
         <PromptComposer
-          form={taskForm}
-          errors={formErrors}
-          onFieldChange={handleFieldChange}
+          prompt={promptInput}
+          promptError={promptError}
+          onPromptChange={handlePromptChange}
           onGenerate={handleGenerate}
           loading={loading}
           hasResult={Boolean(result)}
@@ -138,7 +107,7 @@ export default function App() {
           {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
           {!loading && !error && !result ? (
-            <StatusBlock type="empty" message="填写任务后生成结果会显示在下方。" />
+            <StatusBlock type="empty" message="输入设计任务后，生成结果会显示在下方。" />
           ) : null}
 
           {!loading && !error && result ? (

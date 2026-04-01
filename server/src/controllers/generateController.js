@@ -1,8 +1,14 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { HttpError } from "../utils/httpError.js";
 import { generateStimuli } from "../services/aiService.js";
 import { regroupStimuliByTaskSemantics } from "../services/relativeGroupingService.js";
+
+const promptSchema = z
+  .string({ required_error: "prompt 为必填项" })
+  .trim()
+  .min(2, "请输入至少 2 个字")
+  .max(4000, "输入内容不能超过 4000 字");
 
 function requiredTextField(label, min, max) {
   return z
@@ -47,7 +53,7 @@ const tagsField = z
   .optional()
   .default([]);
 
-const taskSchema = z
+const legacyTaskSchema = z
   .object({
     product: requiredTextField("product", 2, 30),
     user: optionalTextField(50),
@@ -62,9 +68,26 @@ const taskSchema = z
   })
   .strict();
 
-export const generateStimuliController = asyncHandler(async (req, res) => {
-  const taskPayload = req.body?.task ?? req.body;
-  const parsed = taskSchema.safeParse(taskPayload);
+function buildTaskFromPrompt(prompt) {
+  const text = prompt.trim();
+
+  return {
+    prompt: text,
+    product: text.slice(0, 30),
+    user: "",
+    scenario: text,
+    goal: text,
+    constraints: "无硬性限制",
+    styleTags: [],
+    emotionTags: [],
+    existingIdeas: "",
+    avoidDirections: "",
+    notes: ""
+  };
+}
+
+function buildTaskFromLegacyPayload(taskPayload) {
+  const parsed = legacyTaskSchema.safeParse(taskPayload);
 
   if (!parsed.success) {
     throw new HttpError(
@@ -74,11 +97,48 @@ export const generateStimuliController = asyncHandler(async (req, res) => {
     );
   }
 
-  const task = {
+  const normalized = {
     ...parsed.data,
     goal: parsed.data.goal || parsed.data.scenario || parsed.data.product,
     constraints: parsed.data.constraints || "无硬性限制"
   };
+
+  return {
+    ...normalized,
+    prompt: [
+      normalized.product,
+      normalized.user,
+      normalized.scenario,
+      normalized.goal,
+      normalized.constraints
+    ]
+      .filter(Boolean)
+      .join("\n")
+  };
+}
+
+export const generateStimuliController = asyncHandler(async (req, res) => {
+  const promptPayload = req.body?.prompt;
+  const taskPayload = req.body?.task ?? req.body;
+
+  let task;
+
+  if (typeof promptPayload === "string") {
+    const parsedPrompt = promptSchema.safeParse(promptPayload);
+
+    if (!parsedPrompt.success) {
+      throw new HttpError(
+        400,
+        parsedPrompt.error.issues[0]?.message || "请求参数不合法",
+        parsedPrompt.error.flatten()
+      );
+    }
+
+    task = buildTaskFromPrompt(parsedPrompt.data);
+  } else {
+    task = buildTaskFromLegacyPayload(taskPayload);
+  }
+
   const candidates = await generateStimuli(task);
   const result = await regroupStimuliByTaskSemantics(task, candidates);
 

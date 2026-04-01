@@ -145,12 +145,19 @@ function normalizeOptionalTags(tags) {
 export function buildGoalText(task) {
   const styleTags = normalizeOptionalTags(task.styleTags);
   const emotionTags = normalizeOptionalTags(task.emotionTags);
+  const prompt = normalizeOptionalText(task.prompt);
+  const product = normalizeOptionalText(task.product);
+  const user = normalizeOptionalText(task.user);
+  const scenario = normalizeOptionalText(task.scenario);
+  const goal = normalizeOptionalText(task.goal);
+  const constraints = normalizeOptionalText(task.constraints);
   const lines = [
-    `product: ${task.product}`,
-    `user: ${task.user}`,
-    `scenario: ${task.scenario}`,
-    `goal: ${task.goal}`,
-    `constraints: ${task.constraints}`,
+    prompt ? `prompt: ${prompt}` : "",
+    product ? `product: ${product}` : "",
+    user ? `user: ${user}` : "",
+    scenario ? `scenario: ${scenario}` : "",
+    goal ? `goal: ${goal}` : "",
+    constraints ? `constraints: ${constraints}` : "",
     styleTags.length > 0 ? `styleTags: ${styleTags.join(", ")}` : "",
     emotionTags.length > 0 ? `emotionTags: ${emotionTags.join(", ")}` : ""
   ].filter(Boolean);

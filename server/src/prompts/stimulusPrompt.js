@@ -49,22 +49,23 @@ Rules:
 - Generate dynamically from the user's request.
 `.trim();
 
+  const promptText = typeof task.prompt === "string" ? task.prompt.trim() : "";
+  const detailLines = [
+    task.product ? `product: ${task.product}` : "",
+    task.user ? `user: ${task.user}` : "",
+    task.scenario ? `scenario: ${task.scenario}` : "",
+    task.goal ? `goal: ${task.goal}` : "",
+    task.constraints ? `constraints: ${task.constraints}` : "",
+    formatOptionalTags("styleTags", task.styleTags),
+    formatOptionalTags("emotionTags", task.emotionTags),
+    formatOptionalField("existingIdeas", task.existingIdeas),
+    formatOptionalField("avoidDirections", task.avoidDirections),
+    formatOptionalField("notes", task.notes)
+  ].filter(Boolean);
+
   const userPrompt = `
 Design request:
-${[
-  `product: ${task.product}`,
-  `user: ${task.user}`,
-  `scenario: ${task.scenario}`,
-  `goal: ${task.goal}`,
-  `constraints: ${task.constraints}`,
-  formatOptionalTags("styleTags", task.styleTags),
-  formatOptionalTags("emotionTags", task.emotionTags),
-  formatOptionalField("existingIdeas", task.existingIdeas),
-  formatOptionalField("avoidDirections", task.avoidDirections),
-  formatOptionalField("notes", task.notes)
-]
-  .filter(Boolean)
-  .join("\n")}
+${promptText ? `prompt: ${promptText}\n` : ""}${detailLines.join("\n")}
 
 Generate structured design stimuli that strictly follow the schema.
 `.trim();

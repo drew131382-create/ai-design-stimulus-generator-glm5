@@ -1,88 +1,9 @@
 import LoadingDots from "./LoadingDots";
 
-const REQUIRED_FIELDS = [
-  {
-    key: "product",
-    label: "产品（product）*",
-    placeholder: "例如：适老化智能药盒",
-    component: "input"
-  }
-];
-
-const OPTIONAL_FIELDS = [
-  {
-    key: "user",
-    label: "用户（user）",
-    placeholder: "例如：独居高龄老人",
-    component: "input"
-  },
-  {
-    key: "scenario",
-    label: "场景（scenario）",
-    placeholder: "例如：早晚服药前，用户需要快速确认药盒状态并获得提醒。",
-    component: "input"
-  },
-  {
-    key: "goal",
-    label: "目标（goal）",
-    placeholder: "例如：降低漏服误服风险，并减少家属远程管理压力。",
-    component: "textarea"
-  },
-  {
-    key: "constraints",
-    label: "约束（constraints）",
-    placeholder: "例如：低成本、操作简单、支持离线提醒",
-    component: "textarea"
-  }
-];
-
-function Field({ field, value, error, onFieldChange, loading }) {
-  const commonClassName =
-    "w-full rounded-2xl border px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4";
-
-  return (
-    <label className="block space-y-2">
-      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-        {field.label}
-      </span>
-
-      {field.component === "textarea" ? (
-        <textarea
-          rows={3}
-          value={value}
-          onChange={(event) => onFieldChange(field.key, event.target.value)}
-          placeholder={field.placeholder}
-          className={`${commonClassName} resize-y ${
-            error
-              ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
-              : "border-slate-200 bg-slate-50/80 focus:border-slate-300 focus:ring-slate-200/60"
-          }`}
-          disabled={loading}
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(event) => onFieldChange(field.key, event.target.value)}
-          placeholder={field.placeholder}
-          className={`${commonClassName} ${
-            error
-              ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
-              : "border-slate-200 bg-slate-50/80 focus:border-slate-300 focus:ring-slate-200/60"
-          }`}
-          disabled={loading}
-        />
-      )}
-
-      {error ? <p className="text-xs text-rose-600">{error}</p> : null}
-    </label>
-  );
-}
-
 export default function PromptComposer({
-  form,
-  errors,
-  onFieldChange,
+  prompt,
+  promptError,
+  onPromptChange,
   onGenerate,
   loading,
   hasResult
@@ -93,52 +14,36 @@ export default function PromptComposer({
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-semibold text-slate-900">设计任务输入</h2>
-            <span className="text-xs font-medium text-slate-500">轻量模式</span>
+            <span className="text-xs font-medium text-slate-500">单输入框模式</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
-            仅 product 为必填，user 和 scenario 已调整为可选字段。
+            请输入完整设计题目、目标或问题描述，系统会自动生成三组刺激词。
           </p>
           <p className="text-xs leading-5 text-slate-500">
-            注：语义距离基于 ZHIPU 的 Embedding 模型计算。
+            注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-1">
-          {REQUIRED_FIELDS.map((field) => (
-            <div key={field.key}>
-              <Field
-                field={field}
-                value={form[field.key] || ""}
-                error={errors[field.key]}
-                onFieldChange={onFieldChange}
-                loading={loading}
-              />
-            </div>
-          ))}
-        </div>
+        <label className="block space-y-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            任务描述（prompt）*
+          </span>
 
-        <details className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-          <summary className="cursor-pointer text-sm font-medium text-slate-700">
-            可选字段
-          </summary>
+          <textarea
+            rows={6}
+            value={prompt}
+            onChange={(event) => onPromptChange(event.target.value)}
+            placeholder="例如：我要设计一款仿生机器人，用于复杂工厂巡检，希望提高稳定性、可靠性和可维护性。"
+            className={`w-full resize-y rounded-2xl border px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+              promptError
+                ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
+                : "border-slate-200 bg-slate-50/80 focus:border-slate-300 focus:ring-slate-200/60"
+            }`}
+            disabled={loading}
+          />
 
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {OPTIONAL_FIELDS.map((field) => (
-              <div
-                key={field.key}
-                className={field.component === "textarea" ? "md:col-span-2" : ""}
-              >
-                <Field
-                  field={field}
-                  value={form[field.key] || ""}
-                  error={errors[field.key]}
-                  onFieldChange={onFieldChange}
-                  loading={loading}
-                />
-              </div>
-            ))}
-          </div>
-        </details>
+          {promptError ? <p className="text-xs text-rose-600">{promptError}</p> : null}
+        </label>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-500">

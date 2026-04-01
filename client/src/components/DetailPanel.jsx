@@ -72,7 +72,7 @@ export default function DetailPanel({ selection, selectedItem }) {
               {formatSemanticDistance(selectedItem.semantic_distance)}
             </p>
             <p className="mt-2 text-xs text-slate-500">
-              注：语义距离基于 ZHIPU 的 Embedding 模型计算。
+              注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。
             </p>
           </article>
         </div>

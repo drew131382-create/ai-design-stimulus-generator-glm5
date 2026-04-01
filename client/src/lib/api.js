@@ -1,4 +1,4 @@
-﻿const API_BASE_URL = (
+const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || ""
 ).replace(/\/$/, "");
 
@@ -7,7 +7,7 @@ const MAX_RETRIES = 3;
 const REQUEST_TIMEOUT_MS = 180000;
 
 /**
- * @typedef {"\u5f88\u8fd1" | "\u4e2d\u7b49" | "\u8f83\u8fdc" | "\u5f88\u8fdc" | null} SemanticDistanceLevel
+ * @typedef {"很近" | "中等" | "较远" | "很远" | null} SemanticDistanceLevel
  */
 
 /**
@@ -24,16 +24,12 @@ const REQUEST_TIMEOUT_MS = 180000;
 
 /**
  * @typedef {Object} DesignTask
+ * @property {string} prompt
  * @property {string} product
  * @property {string} user
  * @property {string} scenario
  * @property {string} goal
  * @property {string} constraints
- * @property {string[]} styleTags
- * @property {string[]} emotionTags
- * @property {string} existingIdeas
- * @property {string} avoidDirections
- * @property {string} notes
  */
 
 /**
@@ -82,16 +78,6 @@ function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function normalizeTags(value) {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value
-    .map((item) => normalizeText(item))
-    .filter(Boolean);
-}
-
 function normalizeNumber(value) {
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
@@ -99,18 +85,18 @@ function normalizeNumber(value) {
 
 function toDistanceLevel(score) {
   if (score <= 25) {
-    return "\u5f88\u8fd1";
+    return "很近";
   }
 
   if (score <= 50) {
-    return "\u4e2d\u7b49";
+    return "中等";
   }
 
   if (score <= 75) {
-    return "\u8f83\u8fdc";
+    return "较远";
   }
 
-  return "\u5f88\u8fdc";
+  return "很远";
 }
 
 function normalizeDistanceScore(value) {
@@ -159,16 +145,12 @@ function normalizeStimulusGroup(group) {
 
 function normalizeTask(task) {
   return {
+    prompt: normalizeText(task?.prompt),
     product: normalizeText(task?.product),
     user: normalizeText(task?.user),
     scenario: normalizeText(task?.scenario),
     goal: normalizeText(task?.goal),
-    constraints: normalizeText(task?.constraints),
-    styleTags: normalizeTags(task?.styleTags),
-    emotionTags: normalizeTags(task?.emotionTags),
-    existingIdeas: normalizeText(task?.existingIdeas),
-    avoidDirections: normalizeText(task?.avoidDirections),
-    notes: normalizeText(task?.notes)
+    constraints: normalizeText(task?.constraints)
   };
 }
 
@@ -185,7 +167,7 @@ function normalizeGeneratePayload(payload) {
   };
 }
 
-async function requestGenerate(task, signal) {
+async function requestGenerate(prompt, signal) {
   const { signal: timeoutSignal, cleanup } = createTimeoutSignal(
     signal,
     REQUEST_TIMEOUT_MS
@@ -197,7 +179,7 @@ async function requestGenerate(task, signal) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ task }),
+      body: JSON.stringify({ prompt }),
       signal: timeoutSignal
     });
 
@@ -210,9 +192,9 @@ async function requestGenerate(task, signal) {
     }
 
     if (!response.ok) {
-      const error = new Error(payload?.error?.message || "生成失败，请稍后重试。");
-      error.status = response.status;
-      throw error;
+      const requestError = new Error(payload?.error?.message || "生成失败，请稍后重试。");
+      requestError.status = response.status;
+      throw requestError;
     }
 
     return normalizeGeneratePayload(payload);
@@ -221,12 +203,12 @@ async function requestGenerate(task, signal) {
   }
 }
 
-export async function generateStimuli(task, signal) {
+export async function generateStimuli(prompt, signal) {
   let lastError = null;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt += 1) {
     try {
-      return await requestGenerate(task, signal);
+      return await requestGenerate(prompt, signal);
     } catch (error) {
       if (signal?.aborted || error.name === "AbortError") {
         throw error;
