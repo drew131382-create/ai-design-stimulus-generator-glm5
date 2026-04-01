@@ -116,37 +116,20 @@ export default function PromptComposer({
                   label={field.label}
                   error={formErrors[field.key]}
                 >
-                  {field.key === "scenario" ? (
-                    <textarea
-                      rows={3}
-                      value={taskForm[field.key]}
-                      onChange={(event) =>
-                        onFieldChange(field.key, event.target.value)
-                      }
-                      placeholder={field.placeholder}
-                      className={`w-full resize-y rounded-2xl border px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
-                        formErrors[field.key]
-                          ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
-                          : "border-slate-200 bg-white/90 focus:border-slate-300 focus:ring-slate-200/60"
-                      }`}
-                      disabled={loading}
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={taskForm[field.key]}
-                      onChange={(event) =>
-                        onFieldChange(field.key, event.target.value)
-                      }
-                      placeholder={field.placeholder}
-                      className={`w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
-                        formErrors[field.key]
-                          ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
-                          : "border-slate-200 bg-white/90 focus:border-slate-300 focus:ring-slate-200/60"
-                      }`}
-                      disabled={loading}
-                    />
-                  )}
+                  <input
+                    type="text"
+                    value={taskForm[field.key]}
+                    onChange={(event) =>
+                      onFieldChange(field.key, event.target.value)
+                    }
+                    placeholder={field.placeholder}
+                    className={`w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+                      formErrors[field.key]
+                        ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
+                        : "border-slate-200 bg-white/90 focus:border-slate-300 focus:ring-slate-200/60"
+                    }`}
+                    disabled={loading}
+                  />
                 </Field>
               ))}
             </div>
