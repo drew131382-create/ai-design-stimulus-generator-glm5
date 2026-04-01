@@ -1,10 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { env } from "../utils/env.js";
 
 export const healthController = asyncHandler(async (_req, res) => {
   res.status(200).json({
     status: "ok",
     provider: "zhipu",
-    model: "glm-5",
+    model: env.ZHIPU_CHAT_MODEL,
     timestamp: new Date().toISOString()
   });
 });
