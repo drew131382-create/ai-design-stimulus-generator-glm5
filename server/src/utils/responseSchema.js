@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { HttpError } from "./httpError.js";
 
+const GROUP_KEYS = ["near", "medium", "far"];
+const GROUP_SIZE = 10;
+
 const rawItemSchema = z.object({
   word: z.string(),
   explanation: z.string().optional(),
@@ -9,7 +12,9 @@ const rawItemSchema = z.object({
 });
 
 const rawResponseSchema = z.object({
-  candidates: z.array(rawItemSchema).min(30)
+  near: z.array(rawItemSchema).min(GROUP_SIZE),
+  medium: z.array(rawItemSchema).min(GROUP_SIZE),
+  far: z.array(rawItemSchema).min(GROUP_SIZE)
 });
 
 function normalizeText(value) {
@@ -20,7 +25,7 @@ function normalizeText(value) {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function collectUniqueItems(items, label, limit = 30) {
+function collectUniqueItems(items, label, limit = GROUP_SIZE) {
   const uniqueItems = [];
   const seen = new Set();
 
@@ -58,8 +63,13 @@ function collectUniqueItems(items, label, limit = 30) {
   throw new HttpError(502, `AI returned insufficient unique ${label} items`);
 }
 
-export function normalizeStimulusCandidates(payload) {
+export function normalizeStimulusGroups(payload) {
   const parsed = rawResponseSchema.parse(payload);
+  const normalized = {};
 
-  return collectUniqueItems(parsed.candidates, "candidate", 30);
+  for (const groupKey of GROUP_KEYS) {
+    normalized[groupKey] = collectUniqueItems(parsed[groupKey], groupKey);
+  }
+
+  return normalized;
 }

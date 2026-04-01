@@ -39,17 +39,23 @@ Do not wrap the response in code fences.
 
 The JSON schema must be:
 {
-  "candidates": [{"word":"","explanation":""}]
+  "near": [{"word":"","explanation":""}],
+  "medium": [{"word":"","explanation":""}],
+  "far": [{"word":"","explanation":""}]
 }
 
 Rules:
-- candidates must contain at least 40 items.
+- near must contain exactly 10 items.
+- medium must contain exactly 10 items.
+- far must contain exactly 10 items.
 - word must be short and concrete.
 - explanation must be one concise sentence.
 - Output language must follow the user's input language.
 - If the user's input is Chinese, every word and every explanation must be written in natural Chinese.
 - If the user's input is Chinese, do not output English words, English labels, or transliterated English terms.
-- Do not classify candidates into near, medium, or far.
+- near = close-to-problem stimuli: product, function, structure, interaction, usability, safety, materials, implementation.
+- medium = scenario-related stimuli: user role, behavior, workflow, environment, service, context, touchpoints, experience.
+- far = cross-domain stimuli: natural mechanisms, metaphors, systems, distant domains, transferable principles, abstract inspirations.
 - Avoid repeated words across all candidates.
 - Do not use templates or canned lists.
 - Generate dynamically from the user's request.
@@ -86,6 +92,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure at least 40 unique items in candidates. Do not classify them. Every item must include only word and explanation. If the original input is Chinese, output Chinese only."
+      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include only word and explanation. If the original input is Chinese, output Chinese only."
   };
 }

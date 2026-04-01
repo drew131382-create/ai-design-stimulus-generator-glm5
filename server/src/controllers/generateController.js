@@ -2,7 +2,7 @@ import { z } from "zod";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { HttpError } from "../utils/httpError.js";
 import { generateStimuli } from "../services/aiService.js";
-import { regroupStimuliByTaskSemantics } from "../services/relativeGroupingService.js";
+import { attachSemanticDistance } from "../services/semanticDistanceService.js";
 
 const promptSchema = z
   .string({ required_error: "prompt 为必填项" })
@@ -139,8 +139,8 @@ export const generateStimuliController = asyncHandler(async (req, res) => {
     task = buildTaskFromLegacyPayload(taskPayload);
   }
 
-  const candidates = await generateStimuli(task);
-  const result = await regroupStimuliByTaskSemantics(task, candidates);
+  const groupedStimuli = await generateStimuli(task);
+  const result = await attachSemanticDistance(task, groupedStimuli);
 
   res.status(200).json({
     task,

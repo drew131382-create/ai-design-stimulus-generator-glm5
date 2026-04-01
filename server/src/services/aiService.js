@@ -1,7 +1,7 @@
 import { env } from "../utils/env.js";
 import { HttpError } from "../utils/httpError.js";
 import { parseModelJson } from "../utils/extractJson.js";
-import { normalizeStimulusCandidates } from "../utils/responseSchema.js";
+import { normalizeStimulusGroups } from "../utils/responseSchema.js";
 import {
   buildRetryMessage,
   buildStimulusMessages
@@ -185,7 +185,7 @@ export async function generateStimuli(task) {
     try {
       const rawContent = await requestChatCompletion(messages);
       const parsedJson = parseModelJson(rawContent);
-      return normalizeStimulusCandidates(parsedJson);
+      return normalizeStimulusGroups(parsedJson);
     } catch (error) {
       lastError = error;
       console.error("[aiService] zhipu request failed", {
