@@ -48,7 +48,7 @@ Rules:
 - near must contain exactly 10 items.
 - medium must contain exactly 10 items.
 - far must contain exactly 10 items.
-- word must be short and concrete.
+- word must be short, concrete, and no longer than 4 characters.
 - explanation must explain what the stimulus word means or refers to.
 - direction must explain how this stimulus can inspire the current design task.
 - direction must be specific to the current task, not a generic definition.
@@ -89,6 +89,7 @@ Classification target:
 - far: 远距离刺激，来自完全不同领域，采用隐喻或类比，鼓励跨领域创新。
 
 When writing each item:
+- word = at most 4 characters.
 - explanation = explain the word itself.
 - direction = explain how to use this stimulus in the current design task.
 - explanation and direction must be clearly different.
@@ -106,6 +107,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include word, explanation, and direction. Explanation must define the stimulus itself. Direction must explain how it can inspire the current task. They must not repeat each other. If the original input is Chinese, output Chinese only. Follow the near/medium/far classification strictly."
+      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include word, explanation, and direction. Keep every word within 4 characters. Explanation must define the stimulus itself. Direction must explain how it can inspire the current task. They must not repeat each other. If the original input is Chinese, output Chinese only. Follow the near/medium/far classification strictly."
   };
 }
