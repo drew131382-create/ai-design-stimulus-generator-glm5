@@ -22,7 +22,13 @@ function formatOptionalTags(label, tags) {
   return `${label}: ${normalizedTags.join(", ")}`;
 }
 
+function containsChinese(text) {
+  return /[\u4e00-\u9fff]/.test(typeof text === "string" ? text : "");
+}
+
 export function buildStimulusMessages(task) {
+  const promptText = typeof task.prompt === "string" ? task.prompt.trim() : "";
+  const enforceChinese = containsChinese(promptText);
   const systemPrompt = `
 You are a design stimulus generator.
 
@@ -41,13 +47,13 @@ Rules:
 - word must be short and concrete.
 - explanation must be one concise sentence.
 - Output language must follow the user's input language.
+- If the user's input is Chinese, every word and every explanation must be written in natural Chinese.
+- If the user's input is Chinese, do not output English words, English labels, or transliterated English terms.
 - Do not classify candidates into near, medium, or far.
 - Avoid repeated words across all candidates.
 - Do not use templates or canned lists.
 - Generate dynamically from the user's request.
 `.trim();
-
-  const promptText = typeof task.prompt === "string" ? task.prompt.trim() : "";
   const detailLines = [
     task.product ? `product: ${task.product}` : "",
     task.user ? `user: ${task.user}` : "",
@@ -65,6 +71,8 @@ Rules:
 Design request:
 ${promptText ? `prompt: ${promptText}\n` : ""}${detailLines.join("\n")}
 
+${enforceChinese ? "Important: The input is Chinese. Every candidate word and explanation must be in Chinese only." : ""}
+
 Generate structured design stimuli that strictly follow the schema.
 `.trim();
 
@@ -78,6 +86,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure at least 40 unique items in candidates. Do not classify them. Every item must include only word and explanation."
+      "Return valid JSON only. Ensure at least 40 unique items in candidates. Do not classify them. Every item must include only word and explanation. If the original input is Chinese, output Chinese only."
   };
 }
