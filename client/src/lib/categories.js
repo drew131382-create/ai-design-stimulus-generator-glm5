@@ -2,7 +2,7 @@
   {
     key: "near",
     title: "产品本体刺激",
-    shortTitle: "Product-Core",
+    shortTitle: "near",
     subtitle: "用于功能优化、结构创新、材料工艺改进。",
     badgeClass: "bg-near-100 text-near-700 ring-1 ring-inset ring-near-200",
     panelClass: "border-near-200/80 bg-white/80",
@@ -14,7 +14,7 @@
   {
     key: "medium",
     title: "使用情境刺激",
-    shortTitle: "Usage-Context",
+    shortTitle: "medium",
     subtitle: "用于场景重构、交互重构、体验创新。",
     badgeClass: "bg-medium-100 text-medium-700 ring-1 ring-inset ring-medium-200",
     panelClass: "border-medium-200/80 bg-white/80",
@@ -26,7 +26,7 @@
   {
     key: "far",
     title: "机制迁移刺激",
-    shortTitle: "Mechanism-Transfer",
+    shortTitle: "far",
     subtitle: "用于跨领域类比、原理借鉴、系统迁移。",
     badgeClass: "bg-far-100 text-far-700 ring-1 ring-inset ring-far-200",
     panelClass: "border-far-200/80 bg-white/80",
