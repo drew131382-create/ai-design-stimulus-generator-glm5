@@ -33,7 +33,7 @@ export default function DetailPanel({ selection, selectedItem }) {
                 group.badgeClass
               )}
             >
-              {group.title}
+              {group.shortTitle}
             </span>
             <h3 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
               {selectedItem.word}
