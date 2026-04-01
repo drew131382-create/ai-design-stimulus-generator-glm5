@@ -3,7 +3,7 @@
     key: "near",
     title: "产品本体刺激",
     shortTitle: "near",
-    subtitle: "用于功能优化、结构创新、材料工艺改进。",
+    subtitle: "与产品功能、技术方案、性能、结构、产品可用性相关。",
     badgeClass: "bg-near-100 text-near-700 ring-1 ring-inset ring-near-200",
     panelClass: "border-near-200/80 bg-white/80",
     activeClass:
@@ -15,7 +15,7 @@
     key: "medium",
     title: "使用情境刺激",
     shortTitle: "medium",
-    subtitle: "用于场景重构、交互重构、体验创新。",
+    subtitle: "与用户场景、使用情境、用户体验、交互行为、服务触点相关。",
     badgeClass: "bg-medium-100 text-medium-700 ring-1 ring-inset ring-medium-200",
     panelClass: "border-medium-200/80 bg-white/80",
     activeClass:
@@ -27,7 +27,7 @@
     key: "far",
     title: "机制迁移刺激",
     shortTitle: "far",
-    subtitle: "用于跨领域类比、原理借鉴、系统迁移。",
+    subtitle: "来自不同领域，采用隐喻或类比，鼓励跨领域创新。",
     badgeClass: "bg-far-100 text-far-700 ring-1 ring-inset ring-far-200",
     panelClass: "border-far-200/80 bg-white/80",
     activeClass: "border-far-500 bg-far-50 shadow-float ring-2 ring-far-200/80",

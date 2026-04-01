@@ -57,9 +57,9 @@ Rules:
 - Output language must follow the user's input language.
 - If the user's input is Chinese, every word, explanation, and direction must be written in natural Chinese.
 - If the user's input is Chinese, do not output English words, English labels, or transliterated English terms.
-- near = Product-Core Stimuli: for function optimization, structural innovation, and material/process improvement.
-- medium = Usage-Context Stimuli: for scenario reframing, interaction reframing, and experience innovation.
-- far = Mechanism-Transfer Stimuli: for cross-domain analogy, principle borrowing, and system transfer.
+- near = close-range stimuli related to product function, technical solution, performance, structure, and product usability.
+- medium = mid-range stimuli related to user scenario, usage context, user experience, interaction behavior, and service touchpoints.
+- far = long-range stimuli from completely different domains, using metaphor or analogy to encourage cross-domain innovation.
 - Avoid repeated words across all groups.
 - Do not use templates or canned lists.
 - Generate dynamically from the user's request.
@@ -84,9 +84,9 @@ ${promptText ? `prompt: ${promptText}\n` : ""}${detailLines.join("\n")}
 
 ${enforceChinese ? "Important: The input is Chinese. Every candidate word, explanation, and direction must be in Chinese only." : ""}
 Classification target:
-- near: 产品本体刺激（Product-Core Stimuli），用于功能优化、结构创新、材料工艺改进。
-- medium: 使用情境刺激（Usage-Context Stimuli），用于场景重构、交互重构、体验创新。
-- far: 机制迁移刺激（Mechanism-Transfer Stimuli），用于跨领域类比、原理借鉴、系统迁移。
+- near: 近距离刺激，和产品功能、技术方案、性能、结构、产品可用性直接相关。
+- medium: 中距离刺激，和用户场景、使用情境、用户体验、交互行为、服务触点相关。
+- far: 远距离刺激，来自完全不同领域，采用隐喻或类比，鼓励跨领域创新。
 
 When writing each item:
 - explanation = explain the word itself.
@@ -106,6 +106,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include word, explanation, and direction. Explanation must define the stimulus itself. Direction must explain how it can inspire the current task. They must not repeat each other. If the original input is Chinese, output Chinese only."
+      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include word, explanation, and direction. Explanation must define the stimulus itself. Direction must explain how it can inspire the current task. They must not repeat each other. If the original input is Chinese, output Chinese only. Follow the near/medium/far classification strictly."
   };
 }
