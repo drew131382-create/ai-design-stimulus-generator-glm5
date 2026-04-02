@@ -82,7 +82,7 @@ export default function PromptComposer({
             value={taskForm.product}
             onChange={(event) => onFieldChange("product", event.target.value)}
             placeholder="陪伴机器人"
-            className={`w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+            className={`w-full rounded-2xl border px-5 py-4 text-base text-slate-800 outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
               formErrors.product
                 ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
                 : "border-slate-200 bg-slate-50/80 focus:border-slate-300 focus:ring-slate-200/60"
