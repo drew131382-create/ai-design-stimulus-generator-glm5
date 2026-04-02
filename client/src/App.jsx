@@ -205,7 +205,7 @@ export default function App() {
   const [taskForm, setTaskForm] = useState(EMPTY_TASK_FORM);
   const [formErrors, setFormErrors] = useState({});
   const [result, setResult] = useState(null);
-  const [viewMode, setViewMode] = useState(VIEW_MODES.generated);
+  const [viewMode, setViewMode] = useState(VIEW_MODES.semantic);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const abortRef = useRef(null);
@@ -267,7 +267,7 @@ export default function App() {
       const payload = await generateStimuli(task, controller.signal);
       startTransition(() => {
         setResult(payload);
-        setViewMode(VIEW_MODES.generated);
+        setViewMode(VIEW_MODES.semantic);
       });
     } catch (requestError) {
       if (requestError.name !== "AbortError") {
