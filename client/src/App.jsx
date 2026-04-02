@@ -4,6 +4,7 @@ import PromptComposer from "./components/PromptComposer";
 import StimulusColumn from "./components/StimulusColumn";
 import DetailPanel from "./components/DetailPanel";
 import StatusBlock from "./components/StatusBlock";
+import ResultModal from "./components/ResultModal";
 import { STIMULUS_GROUPS } from "./lib/categories";
 import { generateStimuli } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
@@ -206,6 +207,7 @@ export default function App() {
   const [formErrors, setFormErrors] = useState({});
   const [result, setResult] = useState(null);
   const [viewMode, setViewMode] = useState(VIEW_MODES.semantic);
+  const [resultModalOpen, setResultModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const abortRef = useRef(null);
@@ -262,6 +264,7 @@ export default function App() {
     setLoading(true);
     setError("");
     setFormErrors({});
+    setResultModalOpen(true);
 
     try {
       const payload = await generateStimuli(task, controller.signal);
@@ -293,52 +296,56 @@ export default function App() {
           formErrors={formErrors}
           onFieldChange={handleFieldChange}
           onGenerate={handleGenerate}
+          onOpenResult={() => setResultModalOpen(true)}
           loading={loading}
           hasResult={Boolean(result)}
         />
 
-        <section className="space-y-5">
-          {loading ? (
-            <StatusBlock
-              type="loading"
-              message="正在生成刺激词，预计等待 2-3 分钟..."
-            />
-          ) : null}
-
-          {!loading && error ? <StatusBlock type="error" message={error} /> : null}
-
-          {!loading && !error && !displayResult ? (
-            <StatusBlock
-              type="empty"
-              message="输入产品信息后，生成结果会显示在下方。"
-            />
-          ) : null}
-
-          {!loading && !error && displayResult ? (
-            <>
-              <ClassificationToggle mode={viewMode} onChange={setViewMode} />
-
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(360px,1fr)] xl:items-start">
-                <div className="grid gap-5 xl:grid-cols-3">
-                  {STIMULUS_GROUPS.map((group) => (
-                    <StimulusColumn
-                      key={group.key}
-                      group={group}
-                      items={displayResult[group.key]}
-                      selection={selection}
-                      onSelect={selectItem}
-                    />
-                  ))}
-                </div>
-
-                <div className="xl:sticky xl:top-0">
-                  <DetailPanel selection={selection} selectedItem={selectedItem} />
-                </div>
-              </div>
-            </>
-          ) : null}
-        </section>
+        {!loading && !error && !displayResult ? (
+          <StatusBlock
+            type="empty"
+            message="输入产品信息后，生成结果会在弹窗中展示。"
+          />
+        ) : null}
       </main>
+
+      <ResultModal
+        open={resultModalOpen}
+        onClose={() => setResultModalOpen(false)}
+      >
+        {loading ? (
+          <StatusBlock
+            type="loading"
+            message="正在生成刺激词，预计等待 2-3 分钟..."
+          />
+        ) : null}
+
+        {!loading && error ? <StatusBlock type="error" message={error} /> : null}
+
+        {!loading && !error && displayResult ? (
+          <section className="space-y-5">
+            <ClassificationToggle mode={viewMode} onChange={setViewMode} />
+
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(380px,1fr)] xl:items-start">
+              <div className="grid gap-5 xl:grid-cols-3">
+                {STIMULUS_GROUPS.map((group) => (
+                  <StimulusColumn
+                    key={group.key}
+                    group={group}
+                    items={displayResult[group.key]}
+                    selection={selection}
+                    onSelect={selectItem}
+                  />
+                ))}
+              </div>
+
+              <div className="xl:sticky xl:top-0">
+                <DetailPanel selection={selection} selectedItem={selectedItem} />
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </ResultModal>
     </div>
   );
 }
