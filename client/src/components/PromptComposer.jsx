@@ -91,7 +91,7 @@ export default function PromptComposer({
         <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[24px] font-semibold tracking-tight text-slate-900">
+              <p className="text-[18px] font-semibold tracking-tight text-slate-900">
                 补充更多信息
               </p>
               <p className="mt-2 text-[14px] leading-7 text-slate-500">
