@@ -66,7 +66,6 @@ export default function PromptComposer({
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-semibold text-slate-900">设计任务输入</h2>
-            <span className="text-xs font-medium text-slate-500">轻量结构化模式</span>
           </div>
           <p className="text-sm leading-6 text-slate-600">
             先填写产品，其他信息按需补充。这样既能保持输入轻量，也能让生成结果更贴近你的任务。
@@ -82,7 +81,7 @@ export default function PromptComposer({
             value={taskForm.product}
             onChange={(event) => onFieldChange("product", event.target.value)}
             placeholder="陪伴机器人"
-            className={`w-full rounded-2xl border px-5 py-4 text-base text-slate-800 shadow-[0_1px_2px_rgba(15,23,42,0.06)] outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+            className={`w-full rounded-2xl border px-5 py-4 text-base text-slate-800 shadow-[0_1px_2px_rgba(15,23,42,0.06)] outline-none transition duration-200 placeholder:text-xs placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
               formErrors.product
                 ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
                 : "border-slate-300 bg-white focus:border-slate-400 focus:ring-slate-200/70"
@@ -124,7 +123,7 @@ export default function PromptComposer({
                       onFieldChange(field.key, event.target.value)
                     }
                     placeholder={field.placeholder}
-                    className={`w-full rounded-2xl border px-4 py-3.5 text-[15px] text-slate-800 shadow-[0_1px_2px_rgba(15,23,42,0.05)] outline-none transition duration-200 placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
+                    className={`w-full rounded-2xl border px-4 py-3.5 text-[15px] text-slate-800 shadow-[0_1px_2px_rgba(15,23,42,0.05)] outline-none transition duration-200 placeholder:text-xs placeholder:text-slate-400 focus:bg-white focus:ring-4 ${
                       formErrors[field.key]
                         ? "border-rose-300 bg-rose-50/70 focus:border-rose-300 focus:ring-rose-100"
                         : "border-slate-300 bg-white focus:border-slate-400 focus:ring-slate-200/70"
