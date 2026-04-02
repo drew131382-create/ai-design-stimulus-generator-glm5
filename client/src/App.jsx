@@ -301,12 +301,6 @@ export default function App() {
           hasResult={Boolean(result)}
         />
 
-        {!loading && !error && !displayResult ? (
-          <StatusBlock
-            type="empty"
-            message="输入产品信息后，生成结果会在弹窗中展示。"
-          />
-        ) : null}
       </main>
 
       <ResultModal
