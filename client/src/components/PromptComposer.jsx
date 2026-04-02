@@ -54,6 +54,7 @@ export default function PromptComposer({
   formErrors,
   onFieldChange,
   onGenerate,
+  onOpenResult,
   loading,
   hasResult
 }) {
@@ -148,6 +149,17 @@ export default function PromptComposer({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {hasResult ? (
+              <button
+                type="button"
+                onClick={onOpenResult}
+                disabled={loading}
+                className="inline-flex min-w-[132px] items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                查看结果
+              </button>
+            ) : null}
+
             {hasResult ? (
               <button
                 type="button"
