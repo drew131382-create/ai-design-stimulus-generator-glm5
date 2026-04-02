@@ -298,7 +298,12 @@ export default function App() {
         />
 
         <section className="space-y-5">
-          {loading ? <StatusBlock type="loading" message="正在生成刺激词..." /> : null}
+          {loading ? (
+            <StatusBlock
+              type="loading"
+              message="正在生成刺激词，预计等待 2-3 分钟..."
+            />
+          ) : null}
 
           {!loading && error ? <StatusBlock type="error" message={error} /> : null}
 
