@@ -6,7 +6,7 @@ import DetailPanel from "./components/DetailPanel";
 import StatusBlock from "./components/StatusBlock";
 import ResultModal from "./components/ResultModal";
 import { STIMULUS_GROUPS } from "./lib/categories";
-import { generateStimuli } from "./lib/api";
+import { createGenerateJob, waitForGenerateJob } from "./lib/api";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
 const PRODUCT_MIN_LENGTH = 2;
@@ -44,21 +44,21 @@ function validateTaskForm(form) {
   const errors = {};
 
   if (task.product.length < PRODUCT_MIN_LENGTH) {
-    errors.product = `请输入至少 ${PRODUCT_MIN_LENGTH} 个字`;
+    errors.product = `????? ${PRODUCT_MIN_LENGTH} ??`;
   } else if (task.product.length > PRODUCT_MAX_LENGTH) {
-    errors.product = `产品需控制在 ${PRODUCT_MAX_LENGTH} 个字以内`;
+    errors.product = `?????? ${PRODUCT_MAX_LENGTH} ????`;
   }
 
   if (task.user.length > USER_MAX_LENGTH) {
-    errors.user = `用户需控制在 ${USER_MAX_LENGTH} 个字以内`;
+    errors.user = `?????? ${USER_MAX_LENGTH} ????`;
   }
 
   if (task.goal.length > GOAL_MAX_LENGTH) {
-    errors.goal = `目标需控制在 ${GOAL_MAX_LENGTH} 个字以内`;
+    errors.goal = `?????? ${GOAL_MAX_LENGTH} ????`;
   }
 
   if (task.constraints.length > CONSTRAINTS_MAX_LENGTH) {
-    errors.constraints = `约束条件需控制在 ${CONSTRAINTS_MAX_LENGTH} 个字以内`;
+    errors.constraints = `???????? ${CONSTRAINTS_MAX_LENGTH} ????`;
   }
 
   return {
@@ -146,13 +146,13 @@ function ClassificationToggle({ mode, onChange }) {
   const options = [
     {
       key: VIEW_MODES.generated,
-      label: "按生成分类",
-      description: "保留 GLM 原始生成的 near / medium / far 分组"
+      label: "?????",
+      description: "?? GLM ????? near / medium / far ??"
     },
     {
       key: VIEW_MODES.semantic,
-      label: "按语义距离分类",
-      description: "基于已有 30 个词的语义距离重新排序后分组"
+      label: "???????",
+      description: "???? 30 ??????????????"
     }
   ];
 
@@ -160,9 +160,9 @@ function ClassificationToggle({ mode, onChange }) {
     <section className="rounded-[24px] border border-slate-200/80 bg-white/80 p-4 shadow-panel backdrop-blur md:p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-900">分类方式</p>
+          <p className="text-sm font-semibold text-slate-900">????</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">
-            切换只影响这 30 个已生成词的展示分组，不会重新生成内容。
+            ?????? 30 ????????????????????
           </p>
         </div>
 
@@ -191,15 +191,42 @@ function ClassificationToggle({ mode, onChange }) {
 
       {mode === VIEW_MODES.semantic ? (
         <p className="mt-3 text-xs leading-5 text-slate-500">
-          当前为语义距离分类：依据 ZHIPU Embedding-3 计算的语义距离，从近到远重新分成 near / medium / far。
+          ???????????? ZHIPU Embedding-3 ???????????????? near / medium / far?
         </p>
       ) : (
         <p className="mt-3 text-xs leading-5 text-slate-500">
-          当前为生成分类：沿用 GLM 生成结果中的 near / medium / far 原始分组。
+          ?????????? GLM ?????? near / medium / far ?????
         </p>
       )}
     </section>
   );
+}
+
+function buildStatusCopy(jobState) {
+  if (!jobState || jobState.status === "submitting") {
+    return {
+      message: "???????????????...",
+      hint: "???????????????????????????????????"
+    };
+  }
+
+  if (jobState.status === "queued") {
+    const aheadCount = Math.max((jobState.queuePosition || 1) - 1, 0);
+    const waitMinutes = Math.max(
+      1,
+      Math.ceil((jobState.estimatedWaitSeconds || 0) / 60)
+    );
+
+    return {
+      message: `?????????? ${aheadCount} ???????? ${waitMinutes} ?????`,
+      hint: "????????????????????????"
+    };
+  }
+
+  return {
+    message: "???????????? 2-3 ??...",
+    hint: "?????? GLM ? Embedding ?????????"
+  };
 }
 
 export default function App() {
@@ -208,9 +235,13 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [viewMode, setViewMode] = useState(VIEW_MODES.semantic);
   const [resultModalOpen, setResultModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [jobState, setJobState] = useState(null);
   const [error, setError] = useState("");
   const abortRef = useRef(null);
+
+  const isLoading = ["submitting", "queued", "processing"].includes(
+    jobState?.status
+  );
 
   const displayResult = useMemo(() => {
     if (!result) {
@@ -253,7 +284,7 @@ export default function App() {
 
     if (hasError) {
       setFormErrors(errors);
-      setError(Object.values(errors)[0] || "请检查输入内容");
+      setError(Object.values(errors)[0] || "????????");
       return;
     }
 
@@ -261,25 +292,69 @@ export default function App() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setLoading(true);
+    setResult(null);
     setError("");
     setFormErrors({});
+    setJobState({
+      jobId: "",
+      status: "submitting",
+      queuePosition: 0,
+      estimatedWaitSeconds: 0,
+      error: null,
+      result: null
+    });
     setResultModalOpen(true);
 
     try {
-      const payload = await generateStimuli(task, controller.signal);
-      startTransition(() => {
-        setResult(payload);
-        setViewMode(VIEW_MODES.semantic);
+      const createdJob = await createGenerateJob(task, controller.signal);
+      setJobState(createdJob);
+
+      const finalJob = await waitForGenerateJob(createdJob.jobId, {
+        signal: controller.signal,
+        onStatus: (nextJob) => {
+          startTransition(() => {
+            setJobState(nextJob);
+          });
+        }
       });
+
+      if (finalJob.status === "completed" && finalJob.result) {
+        startTransition(() => {
+          setResult(finalJob.result);
+          setViewMode(VIEW_MODES.semantic);
+          setError("");
+          setJobState(finalJob);
+        });
+        return;
+      }
+
+      const failedMessage =
+        finalJob.error?.message || "???????????";
+      setError(failedMessage);
+      setJobState(finalJob);
     } catch (requestError) {
       if (requestError.name !== "AbortError") {
-        setError(requestError.message || "生成失败，请稍后重试。");
+        const message = requestError.message || "???????????";
+        setError(message);
+        setJobState((current) => ({
+          ...(current || {}),
+          status: "failed",
+          error: {
+            message
+          },
+          result: null
+        }));
       }
-    } finally {
-      setLoading(false);
     }
   };
+
+  const statusCopy = buildStatusCopy(jobState);
+  const canOpenResult = Boolean(result || jobState || error);
+  const resultButtonLabel = isLoading
+    ? "????"
+    : error
+      ? "????"
+      : "????";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-shell text-slate-900">
@@ -297,26 +372,28 @@ export default function App() {
           onFieldChange={handleFieldChange}
           onGenerate={handleGenerate}
           onOpenResult={() => setResultModalOpen(true)}
-          loading={loading}
+          loading={isLoading}
           hasResult={Boolean(result)}
+          canOpenResult={canOpenResult}
+          resultButtonLabel={resultButtonLabel}
         />
-
       </main>
 
       <ResultModal
         open={resultModalOpen}
         onClose={() => setResultModalOpen(false)}
       >
-        {loading ? (
+        {isLoading ? (
           <StatusBlock
             type="loading"
-            message="正在生成刺激词，预计等待 2-3 分钟..."
+            message={statusCopy.message}
+            hint={statusCopy.hint}
           />
         ) : null}
 
-        {!loading && error ? <StatusBlock type="error" message={error} /> : null}
+        {!isLoading && error ? <StatusBlock type="error" message={error} /> : null}
 
-        {!loading && !error && displayResult ? (
+        {!isLoading && !error && displayResult ? (
           <section className="space-y-5">
             <ClassificationToggle mode={viewMode} onChange={setViewMode} />
 

@@ -1,11 +1,22 @@
 import { Router } from "express";
-import { generateStimuliController } from "../controllers/generateController.js";
+import {
+  createGenerateJobController,
+  getGenerateJobController
+} from "../controllers/generateController.js";
 import { healthController } from "../controllers/healthController.js";
-import { apiRateLimiter } from "../middleware/rateLimiter.js";
+import {
+  generateStatusRateLimiter,
+  generateSubmitRateLimiter
+} from "../middleware/rateLimiter.js";
 
 const router = Router();
 
 router.get("/health", healthController);
-router.post("/api/generate", apiRateLimiter, generateStimuliController);
+router.post("/api/generate", generateSubmitRateLimiter, createGenerateJobController);
+router.get(
+  "/api/generate/:jobId",
+  generateStatusRateLimiter,
+  getGenerateJobController
+);
 
 export default router;

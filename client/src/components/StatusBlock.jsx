@@ -1,4 +1,4 @@
-﻿import { STIMULUS_GROUPS } from "../lib/categories";
+import { STIMULUS_GROUPS } from "../lib/categories";
 import LoadingDots from "./LoadingDots";
 
 function SkeletonColumn({ group }) {
@@ -24,7 +24,7 @@ function SkeletonColumn({ group }) {
   );
 }
 
-export default function StatusBlock({ type, message }) {
+export default function StatusBlock({ type, message, hint }) {
   if (type === "loading") {
     return (
       <div className="space-y-5">
@@ -32,11 +32,11 @@ export default function StatusBlock({ type, message }) {
           <div className="flex flex-col gap-3">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-3 py-1.5 text-sm font-medium text-slate-700">
               <span className="spinner-ring" />
-              {message || "正在生成刺激词"}
+              {message || "???????"}
               <LoadingDots />
             </div>
             <p className="text-sm leading-6 text-slate-600">
-              正在补充语义距离并整理结构化结果，你可以先思考下一轮输入方向。
+              {hint || "?????????????????????"}
             </p>
             <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
               <div className="loading-progress h-full rounded-full bg-slate-500/80" />
@@ -75,7 +75,7 @@ export default function StatusBlock({ type, message }) {
   return (
     <section className="rounded-[28px] border border-slate-200/80 bg-white/78 p-8 text-center shadow-panel">
       <p className="text-lg font-semibold text-slate-900">
-        {type === "error" ? "生成失败" : "等待输入"}
+        {type === "error" ? "????" : "????"}
       </p>
       <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">
         {message}

@@ -1,55 +1,40 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || ""
-).replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 const RETRYABLE_STATUS = new Set([502, 503, 504]);
 const MAX_RETRIES = 3;
-const REQUEST_TIMEOUT_MS = 180000;
+const REQUEST_TIMEOUT_MS = 20000;
+const JOB_POLL_INTERVAL_MS = 2500;
 
-/**
- * @typedef {"很近" | "中等" | "较远" | "很远" | null} SemanticDistanceLevel
- */
+function delay(ms, signal) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, ms);
 
-/**
- * @typedef {Object} StimulusItem
- * @property {string} word
- * @property {string} explanation
- * @property {string} inspiration
- * @property {string} direction
- * @property {number | null} semantic_similarity
- * @property {number | null} semantic_distance
- * @property {number | null} semantic_distance_score
- * @property {SemanticDistanceLevel} semantic_distance_level
- */
+    const handleAbort = () => {
+      cleanup();
+      reject(signal?.reason || new DOMException("Aborted", "AbortError"));
+    };
 
-/**
- * @typedef {Object} DesignTask
- * @property {string} prompt
- * @property {string} product
- * @property {string} user
- * @property {string} scenario
- * @property {string} goal
- * @property {string} constraints
- */
+    const cleanup = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener?.("abort", handleAbort);
+    };
 
-/**
- * @typedef {Object} GenerateResponse
- * @property {DesignTask} task
- * @property {StimulusItem[]} near
- * @property {StimulusItem[]} medium
- * @property {StimulusItem[]} far
- */
+    if (signal?.aborted) {
+      handleAbort();
+      return;
+    }
 
-function delay(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
+    signal?.addEventListener?.("abort", handleAbort, { once: true });
   });
 }
 
 function createTimeoutSignal(externalSignal, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => {
-    controller.abort(new Error("请求超时"));
+    controller.abort(new Error("????"));
   }, timeoutMs);
 
   if (externalSignal) {
@@ -70,10 +55,6 @@ function createTimeoutSignal(externalSignal, timeoutMs) {
   };
 }
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
 function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -83,20 +64,24 @@ function normalizeNumber(value) {
   return Number.isFinite(num) ? num : null;
 }
 
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
 function toDistanceLevel(score) {
   if (score <= 25) {
-    return "很近";
+    return "??";
   }
 
   if (score <= 50) {
-    return "中等";
+    return "??";
   }
 
   if (score <= 75) {
-    return "较远";
+    return "??";
   }
 
-  return "很远";
+  return "??";
 }
 
 function normalizeDistanceScore(value) {
@@ -154,10 +139,6 @@ function normalizeTask(task) {
   };
 }
 
-/**
- * @param {unknown} payload
- * @returns {GenerateResponse}
- */
 function normalizeGeneratePayload(payload) {
   return {
     task: normalizeTask(payload?.task),
@@ -167,19 +148,39 @@ function normalizeGeneratePayload(payload) {
   };
 }
 
-async function requestGenerate(task, signal) {
+function normalizeJobPayload(payload) {
+  return {
+    jobId: normalizeText(payload?.jobId),
+    status: normalizeText(payload?.status),
+    queuePosition: normalizeNumber(payload?.queuePosition) || 0,
+    estimatedWaitSeconds: normalizeNumber(payload?.estimatedWaitSeconds) || 0,
+    createdAt: normalizeText(payload?.createdAt),
+    startedAt: normalizeText(payload?.startedAt),
+    completedAt: normalizeText(payload?.completedAt),
+    error: payload?.error
+      ? {
+          message: normalizeText(payload.error.message) || "???????????",
+          statusCode: normalizeNumber(payload.error.statusCode),
+          details: payload.error.details ?? null
+        }
+      : null,
+    result: payload?.result ? normalizeGeneratePayload(payload.result) : null
+  };
+}
+
+async function requestJson(path, { method = "GET", body, signal } = {}) {
   const { signal: timeoutSignal, cleanup } = createTimeoutSignal(
     signal,
     REQUEST_TIMEOUT_MS
   );
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/generate`, {
-      method: "POST",
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ task }),
+      body: body ? JSON.stringify(body) : undefined,
       signal: timeoutSignal
     });
 
@@ -193,44 +194,77 @@ async function requestGenerate(task, signal) {
 
     if (!response.ok) {
       const requestError = new Error(
-        payload?.error?.message || "生成失败，请稍后重试。"
+        payload?.error?.message || "???????????"
       );
       requestError.status = response.status;
+      requestError.details = payload?.error?.details || null;
       throw requestError;
     }
 
-    return normalizeGeneratePayload(payload);
+    return payload;
   } finally {
     cleanup();
   }
 }
 
-export async function generateStimuli(task, signal) {
+export async function createGenerateJob(task, signal) {
+  const payload = await requestJson("/api/generate", {
+    method: "POST",
+    body: { task },
+    signal
+  });
+
+  return normalizeJobPayload(payload);
+}
+
+export async function getGenerateJob(jobId, signal) {
+  const payload = await requestJson(`/api/generate/${jobId}`, {
+    method: "GET",
+    signal
+  });
+
+  return normalizeJobPayload(payload);
+}
+
+export async function waitForGenerateJob(jobId, { signal, onStatus } = {}) {
   let lastError = null;
 
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt += 1) {
-    try {
-      return await requestGenerate(task, signal);
-    } catch (error) {
-      if (signal?.aborted || error.name === "AbortError") {
-        throw error;
+  while (true) {
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt += 1) {
+      try {
+        const job = await getGenerateJob(jobId, signal);
+        onStatus?.(job);
+
+        if (job.status === "completed" || job.status === "failed") {
+          return job;
+        }
+
+        await delay(JOB_POLL_INTERVAL_MS, signal);
+        lastError = null;
+        break;
+      } catch (error) {
+        if (signal?.aborted || error.name === "AbortError") {
+          throw error;
+        }
+
+        lastError = error;
+        const retryable =
+          typeof error.status === "number"
+            ? RETRYABLE_STATUS.has(error.status)
+            : true;
+
+        if (!retryable || attempt === MAX_RETRIES - 1) {
+          throw error;
+        }
+
+        await delay(700 * (attempt + 1), signal);
       }
+    }
 
-      lastError = error;
-      const retryable =
-        typeof error.status === "number"
-          ? RETRYABLE_STATUS.has(error.status)
-          : true;
-
-      if (!retryable || attempt === MAX_RETRIES - 1) {
-        throw error;
-      }
-
-      await delay(700 * (attempt + 1));
+    if (lastError) {
+      throw lastError;
     }
   }
-
-  throw lastError || new Error("生成失败，请稍后重试。");
 }
 
 export { API_BASE_URL };

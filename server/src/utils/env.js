@@ -12,9 +12,21 @@ const envSchema = z.object({
     .string()
     .url("ZHIPU_BASE_URL must be a valid URL")
     .default("https://open.bigmodel.cn/api/paas/v4"),
+  REDIS_URL: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() ? value.trim() : undefined),
+    z
+      .string()
+      .url("REDIS_URL must be a valid URL")
+      .optional()
+  ),
   ZHIPU_CHAT_MODEL: z.string().min(1).default("glm-4.7-flashx"),
   ZHIPU_EMBEDDING_MODEL: z.string().min(1).default("embedding-3"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
+  JOB_QUEUE_NAME: z.string().min(1).default("generate-stimuli"),
+  JOB_WORKER_CONCURRENCY: z.coerce.number().int().positive().default(3),
+  JOB_QUEUE_MAX_SIZE: z.coerce.number().int().positive().default(30),
+  JOB_RESULT_TTL_MS: z.coerce.number().int().positive().default(3600000),
+  JOB_ESTIMATED_DURATION_SECONDS: z.coerce.number().int().positive().default(150),
   ALLOWED_ORIGIN: z.string().optional()
 });
 
