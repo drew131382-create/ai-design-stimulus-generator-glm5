@@ -32,11 +32,13 @@ services:
       - key: MODELSCOPE_BASE_URL
         value: https://api-inference.modelscope.cn/v1
       - key: MODELSCOPE_MODEL
-        value: ZhipuAI/GLM-5
+        value: ZhipuAI/GLM-4.7-Flashx
       - key: ZHIPU_API_KEY
         sync: false
       - key: ZHIPU_BASE_URL
         value: https://open.bigmodel.cn/api/paas/v4
+      - key: ZHIPU_CHAT_MODEL
+        value: glm-4.7-flashx
       - key: ZHIPU_EMBEDDING_MODEL
         value: embedding-3
       - key: ALLOWED_ORIGIN

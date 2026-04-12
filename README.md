@@ -1,6 +1,6 @@
 # AI Design Stimulus Generator
 
-一个面向设计师的在线工具。用户输入设计需求或问题后，前端调用自有 Node.js 后端，后端通过 ModelScope 的 OpenAI 兼容接口请求 GLM-5，并返回结构化的 `near / medium / far` 三类设计刺激词，用于功能优化、场景重构与跨领域创新。
+一个面向设计师的在线工具。用户输入设计需求或问题后，前端调用自有 Node.js 后端，后端通过智谱 API 请求 GLM-4.7-FlashX，并返回结构化的 `near / medium / far` 三类设计刺激词，用于功能优化、场景重构与跨领域创新。
 
 ## 项目介绍
 
@@ -40,7 +40,7 @@ VITE_API_BASE_URL=http://localhost:10000
 # server/.env
 MODELSCOPE_API_KEY=your_modelscope_api_key_here
 MODELSCOPE_BASE_URL=your_modelscope_openai_compatible_base_url_here
-MODELSCOPE_MODEL=ZhipuAI/GLM-5
+MODELSCOPE_MODEL=ZhipuAI/GLM-4.7-Flashx
 ALLOWED_ORIGIN=http://localhost:5173
 PORT=10000
 ```
@@ -135,7 +135,7 @@ npm start
 ```bash
 MODELSCOPE_API_KEY=your_modelscope_api_key_here
 MODELSCOPE_BASE_URL=your_modelscope_openai_compatible_base_url_here
-MODELSCOPE_MODEL=ZhipuAI/GLM-5
+MODELSCOPE_MODEL=ZhipuAI/GLM-4.7-Flashx
 ALLOWED_ORIGIN=https://your-vercel-frontend-url.vercel.app
 PORT=10000
 ```
@@ -144,7 +144,7 @@ PORT=10000
 
 仓库根目录提供了 `render.yaml`，也可以使用 Render Blueprint 方式导入。
 
-## 如何配置 ModelScope 上的 GLM-5 API
+## 如何配置 GLM-4.7-FlashX API
 
 1. 在 ModelScope 平台开通对应 API-Inference 能力
 2. 获取 OpenAI 兼容方式所需的：
@@ -231,4 +231,3 @@ project-root/
 ### `GET /health`
 
 返回服务状态、模型名与时间戳。
-
