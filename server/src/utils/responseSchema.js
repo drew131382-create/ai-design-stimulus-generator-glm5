@@ -30,9 +30,8 @@ function countWordLength(value) {
   return [...normalizeText(value).replace(/\s+/g, "")].length;
 }
 
-function collectUniqueItems(items, label, limit = GROUP_SIZE) {
-  const uniqueItems = [];
-  const seen = new Set();
+function collectValidItems(items, label, limit = GROUP_SIZE) {
+  const validItems = [];
 
   for (const item of items) {
     const explanation = normalizeText(item.explanation || item.inspiration);
@@ -54,21 +53,14 @@ function collectUniqueItems(items, label, limit = GROUP_SIZE) {
       continue;
     }
 
-    const token = normalizedItem.word.toLocaleLowerCase();
+    validItems.push(normalizedItem);
 
-    if (seen.has(token)) {
-      continue;
-    }
-
-    seen.add(token);
-    uniqueItems.push(normalizedItem);
-
-    if (uniqueItems.length === limit) {
-      return uniqueItems;
+    if (validItems.length === limit) {
+      return validItems;
     }
   }
 
-  throw new HttpError(502, `AI returned insufficient unique ${label} items`);
+  throw new HttpError(502, `AI returned insufficient valid ${label} items`);
 }
 
 export function normalizeStimulusGroups(payload) {
@@ -76,7 +68,7 @@ export function normalizeStimulusGroups(payload) {
   const normalized = {};
 
   for (const groupKey of GROUP_KEYS) {
-    normalized[groupKey] = collectUniqueItems(parsed[groupKey], groupKey);
+    normalized[groupKey] = collectValidItems(parsed[groupKey], groupKey);
   }
 
   return normalized;

@@ -48,6 +48,8 @@ Rules:
 - near must contain exactly 10 items.
 - medium must contain exactly 10 items.
 - far must contain exactly 10 items.
+- The 30 words across near, medium, and far must be globally unique.
+- Before outputting JSON, self-check all 30 words and replace any duplicate word.
 - word must be short, concrete, and no longer than 4 characters.
 - explanation must explain what the stimulus word means or refers to.
 - direction must explain how this stimulus can inspire the current design task.
@@ -60,7 +62,6 @@ Rules:
 - near = close-range stimuli related to product function, technical solution, performance, structure, and product usability.
 - medium = mid-range stimuli related to user scenario, usage context, user experience, interaction behavior, and service touchpoints.
 - far = long-range stimuli from completely different domains, using metaphor or analogy to encourage cross-domain innovation.
-- Avoid repeated words across all groups.
 - Do not use templates or canned lists.
 - Generate dynamically from the user's request.
 `.trim();
@@ -107,6 +108,6 @@ export function buildRetryMessage() {
   return {
     role: "user",
     content:
-      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 unique items. Every item must include word, explanation, and direction. Keep every word within 4 characters. Explanation must define the stimulus itself. Direction must explain how it can inspire the current task. They must not repeat each other. If the original input is Chinese, output Chinese only. Follow the near/medium/far classification strictly."
+      "Return valid JSON only. Ensure near, medium, and far each contain exactly 10 items, and all 30 words are globally unique across all groups. Before outputting JSON, self-check and replace any duplicated word. Every item must include word, explanation, and direction. Keep every word within 4 characters. Explanation must define the stimulus itself. Direction must explain how it can inspire the current task. They must not repeat each other. If the original input is Chinese, output Chinese only. Follow the near/medium/far classification strictly."
   };
 }
