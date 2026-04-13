@@ -68,7 +68,7 @@ export default function PromptComposer({
             设计任务输入
           </h2>
           <p className="max-w-4xl text-[14px] leading-7 text-slate-600">
-            先填写产品，其他信息按需补充。提交后会先进入任务队列，再在弹窗中显示排队和生成状态。
+            请填写产品内容，其他信息按需求补充，提交后会进入生成任务队列
           </p>
           <p className="text-[12px] leading-6 text-slate-500">
             注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。
