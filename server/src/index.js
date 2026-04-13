@@ -5,6 +5,7 @@ import routes from "./routes/generateRoutes.js";
 import { env } from "./utils/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
+import { startEmbeddedWorker } from "./services/embeddedWorkerService.js";
 
 const app = express();
 const normalizeOrigin = (value) =>
@@ -62,3 +63,5 @@ app.use(errorHandler);
 app.listen(env.PORT, () => {
   console.log(`Server listening on port ${env.PORT}`);
 });
+
+startEmbeddedWorker();

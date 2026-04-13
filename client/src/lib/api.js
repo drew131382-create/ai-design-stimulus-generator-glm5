@@ -34,7 +34,7 @@ function delay(ms, signal) {
 function createTimeoutSignal(externalSignal, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => {
-    controller.abort(new Error("????"));
+    controller.abort(new Error("请求超时"));
   }, timeoutMs);
 
   if (externalSignal) {
@@ -70,18 +70,18 @@ function clamp(value, min, max) {
 
 function toDistanceLevel(score) {
   if (score <= 25) {
-    return "??";
+    return "很近";
   }
 
   if (score <= 50) {
-    return "??";
+    return "中等";
   }
 
   if (score <= 75) {
-    return "??";
+    return "较远";
   }
 
-  return "??";
+  return "很远";
 }
 
 function normalizeDistanceScore(value) {
@@ -159,7 +159,7 @@ function normalizeJobPayload(payload) {
     completedAt: normalizeText(payload?.completedAt),
     error: payload?.error
       ? {
-          message: normalizeText(payload.error.message) || "???????????",
+          message: normalizeText(payload.error.message) || "生成失败，请稍后重试。",
           statusCode: normalizeNumber(payload.error.statusCode),
           details: payload.error.details ?? null
         }
@@ -194,7 +194,7 @@ async function requestJson(path, { method = "GET", body, signal } = {}) {
 
     if (!response.ok) {
       const requestError = new Error(
-        payload?.error?.message || "???????????"
+        payload?.error?.message || "生成失败，请稍后重试。"
       );
       requestError.status = response.status;
       requestError.details = payload?.error?.details || null;

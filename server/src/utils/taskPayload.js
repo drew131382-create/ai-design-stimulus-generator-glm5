@@ -2,24 +2,24 @@ import { z } from "zod";
 import { HttpError } from "./httpError.js";
 
 const promptSchema = z
-  .string({ required_error: "???????" })
+  .string({ required_error: "请输入设计任务" })
   .trim()
-  .min(2, "????? 2 ??")
-  .max(4000, "???????? 4000 ??");
+  .min(2, "请输入至少 2 个字")
+  .max(4000, "输入内容不能超过 4000 个字");
 
 function requiredTextField(label, min, max) {
   return z
-    .string({ required_error: `${label} ????` })
+    .string({ required_error: `${label} 为必填项` })
     .trim()
-    .min(min, `${label} ? ${min}-${max} ?`)
-    .max(max, `${label} ? ${min}-${max} ?`);
+    .min(min, `${label} 需 ${min}-${max} 字`)
+    .max(max, `${label} 需 ${min}-${max} 字`);
 }
 
 function optionalTextField(max) {
   let schema = z.string().trim();
 
   if (typeof max === "number") {
-    schema = schema.max(max, `???????? ${max} ?`);
+    schema = schema.max(max, `字段长度不能超过 ${max} 字`);
   }
 
   return schema.optional().default("");
@@ -37,11 +37,11 @@ const structuredTaskSchema = z
 
 function buildPrompt(task) {
   return [
-    task.product ? `???${task.product}` : "",
-    task.user ? `???${task.user}` : "",
-    task.scenario ? `???${task.scenario}` : "",
-    task.goal ? `???${task.goal}` : "",
-    task.constraints ? `?????${task.constraints}` : ""
+    task.product ? `产品：${task.product}` : "",
+    task.user ? `用户：${task.user}` : "",
+    task.scenario ? `场景：${task.scenario}` : "",
+    task.goal ? `目标：${task.goal}` : "",
+    task.constraints ? `约束条件：${task.constraints}` : ""
   ]
     .filter(Boolean)
     .join("\n");
@@ -56,7 +56,7 @@ function buildTaskFromPrompt(prompt) {
     user: "",
     scenario: text,
     goal: text,
-    constraints: "?????",
+    constraints: "无硬性限制",
     styleTags: [],
     emotionTags: [],
     existingIdeas: "",
@@ -71,7 +71,7 @@ function buildTaskFromStructuredPayload(taskPayload) {
   if (!parsed.success) {
     throw new HttpError(
       400,
-      parsed.error.issues[0]?.message || "???????",
+      parsed.error.issues[0]?.message || "请求参数不合法",
       parsed.error.flatten()
     );
   }
@@ -79,7 +79,7 @@ function buildTaskFromStructuredPayload(taskPayload) {
   const normalized = {
     ...parsed.data,
     goal: parsed.data.goal || parsed.data.scenario || parsed.data.product,
-    constraints: parsed.data.constraints || "?????"
+    constraints: parsed.data.constraints || "无硬性限制"
   };
 
   return {
@@ -103,7 +103,7 @@ export function parseGenerateTaskPayload(body) {
     if (!parsedPrompt.success) {
       throw new HttpError(
         400,
-        parsedPrompt.error.issues[0]?.message || "???????",
+        parsedPrompt.error.issues[0]?.message || "请求参数不合法",
         parsedPrompt.error.flatten()
       );
     }

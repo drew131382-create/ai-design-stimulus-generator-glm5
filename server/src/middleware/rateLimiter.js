@@ -19,11 +19,11 @@ function buildLimiter({ windowMs, limit, message }) {
 export const generateSubmitRateLimiter = buildLimiter({
   windowMs: 15 * 60 * 1000,
   limit: 60,
-  message: "???????????????"
+  message: "提交任务过于频繁，请稍后再试。"
 });
 
 export const generateStatusRateLimiter = buildLimiter({
   windowMs: 15 * 60 * 1000,
   limit: 600,
-  message: "???????????????"
+  message: "状态查询过于频繁，请稍后再试。"
 });

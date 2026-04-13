@@ -32,11 +32,11 @@ export default function StatusBlock({ type, message, hint }) {
           <div className="flex flex-col gap-3">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-3 py-1.5 text-sm font-medium text-slate-700">
               <span className="spinner-ring" />
-              {message || "???????"}
+              {message || "正在生成刺激词"}
               <LoadingDots />
             </div>
             <p className="text-sm leading-6 text-slate-600">
-              {hint || "?????????????????????"}
+              {hint || "正在补充语义距离并整理结构化结果，请稍候。"}
             </p>
             <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
               <div className="loading-progress h-full rounded-full bg-slate-500/80" />
@@ -75,7 +75,7 @@ export default function StatusBlock({ type, message, hint }) {
   return (
     <section className="rounded-[28px] border border-slate-200/80 bg-white/78 p-8 text-center shadow-panel">
       <p className="text-lg font-semibold text-slate-900">
-        {type === "error" ? "????" : "????"}
+        {type === "error" ? "生成失败" : "等待输入"}
       </p>
       <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">
         {message}

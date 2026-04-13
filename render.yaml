@@ -1,10 +1,4 @@
 services:
-  - type: keyvalue
-    name: ai-design-stimulus-queue
-    plan: starter
-    maxmemoryPolicy: noeviction
-    ipAllowList: []
-
   - type: web
     name: ai-design-stimulus-frontend
     runtime: static
@@ -44,10 +38,9 @@ services:
       - key: ZHIPU_EMBEDDING_MODEL
         value: embedding-3
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: ai-design-stimulus-queue
-          property: connectionString
+        sync: false
+      - key: START_EMBEDDED_WORKER
+        value: "true"
       - key: JOB_QUEUE_NAME
         value: generate-stimuli
       - key: JOB_WORKER_CONCURRENCY
@@ -84,10 +77,9 @@ services:
       - key: ZHIPU_EMBEDDING_MODEL
         value: embedding-3
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: ai-design-stimulus-queue
-          property: connectionString
+        sync: false
+      - key: START_EMBEDDED_WORKER
+        value: "false"
       - key: JOB_QUEUE_NAME
         value: generate-stimuli
       - key: JOB_WORKER_CONCURRENCY

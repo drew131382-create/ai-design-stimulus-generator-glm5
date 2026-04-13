@@ -44,21 +44,21 @@ function validateTaskForm(form) {
   const errors = {};
 
   if (task.product.length < PRODUCT_MIN_LENGTH) {
-    errors.product = `????? ${PRODUCT_MIN_LENGTH} ??`;
+    errors.product = `请输入至少 ${PRODUCT_MIN_LENGTH} 个字`;
   } else if (task.product.length > PRODUCT_MAX_LENGTH) {
-    errors.product = `?????? ${PRODUCT_MAX_LENGTH} ????`;
+    errors.product = `产品需控制在 ${PRODUCT_MAX_LENGTH} 个字以内`;
   }
 
   if (task.user.length > USER_MAX_LENGTH) {
-    errors.user = `?????? ${USER_MAX_LENGTH} ????`;
+    errors.user = `用户需控制在 ${USER_MAX_LENGTH} 个字以内`;
   }
 
   if (task.goal.length > GOAL_MAX_LENGTH) {
-    errors.goal = `?????? ${GOAL_MAX_LENGTH} ????`;
+    errors.goal = `目标需控制在 ${GOAL_MAX_LENGTH} 个字以内`;
   }
 
   if (task.constraints.length > CONSTRAINTS_MAX_LENGTH) {
-    errors.constraints = `???????? ${CONSTRAINTS_MAX_LENGTH} ????`;
+    errors.constraints = `约束条件需控制在 ${CONSTRAINTS_MAX_LENGTH} 个字以内`;
   }
 
   return {
@@ -146,13 +146,13 @@ function ClassificationToggle({ mode, onChange }) {
   const options = [
     {
       key: VIEW_MODES.generated,
-      label: "?????",
-      description: "?? GLM ????? near / medium / far ??"
+      label: "按生成分类",
+      description: "保留 GLM 原始生成的 near / medium / far 分组"
     },
     {
       key: VIEW_MODES.semantic,
-      label: "???????",
-      description: "???? 30 ??????????????"
+      label: "按语义距离分类",
+      description: "基于已有 30 个词的语义距离重新排序后分组"
     }
   ];
 
@@ -160,9 +160,9 @@ function ClassificationToggle({ mode, onChange }) {
     <section className="rounded-[24px] border border-slate-200/80 bg-white/80 p-4 shadow-panel backdrop-blur md:p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-900">????</p>
+          <p className="text-sm font-semibold text-slate-900">分类方式</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">
-            ?????? 30 ????????????????????
+            切换只影响这 30 个已生成词的展示分组，不会重新生成内容。
           </p>
         </div>
 
@@ -191,11 +191,11 @@ function ClassificationToggle({ mode, onChange }) {
 
       {mode === VIEW_MODES.semantic ? (
         <p className="mt-3 text-xs leading-5 text-slate-500">
-          ???????????? ZHIPU Embedding-3 ???????????????? near / medium / far?
+          当前为语义距离分类：依据 ZHIPU Embedding-3 计算的语义距离，从近到远重新分成 near / medium / far。
         </p>
       ) : (
         <p className="mt-3 text-xs leading-5 text-slate-500">
-          ?????????? GLM ?????? near / medium / far ?????
+          当前为生成分类：沿用 GLM 生成结果中的 near / medium / far 原始分组。
         </p>
       )}
     </section>
@@ -205,8 +205,8 @@ function ClassificationToggle({ mode, onChange }) {
 function buildStatusCopy(jobState) {
   if (!jobState || jobState.status === "submitting") {
     return {
-      message: "???????????????...",
-      hint: "???????????????????????????????????"
+      message: "正在提交任务，准备加入生成队列...",
+      hint: "任务提交成功后，会自动在后台继续执行，你可以随时关闭弹窗后再回来查看。"
     };
   }
 
@@ -218,14 +218,14 @@ function buildStatusCopy(jobState) {
     );
 
     return {
-      message: `?????????? ${aheadCount} ???????? ${waitMinutes} ?????`,
-      hint: "????????????????????????"
+      message: `任务排队中，前方还有 ${aheadCount} 个任务，预计等待 ${waitMinutes} 分钟左右。`,
+      hint: "当前结果页会持续更新状态，不会重新发起生成请求。"
     };
   }
 
   return {
-    message: "???????????? 2-3 ??...",
-    hint: "?????? GLM ? Embedding ?????????"
+    message: "正在生成刺激词，预计等待 2-3 分钟...",
+    hint: "系统正在调用 GLM 和 Embedding 处理结果，请稍候。"
   };
 }
 
@@ -284,7 +284,7 @@ export default function App() {
 
     if (hasError) {
       setFormErrors(errors);
-      setError(Object.values(errors)[0] || "????????");
+      setError(Object.values(errors)[0] || "请检查输入内容");
       return;
     }
 
@@ -329,12 +329,12 @@ export default function App() {
       }
 
       const failedMessage =
-        finalJob.error?.message || "???????????";
+        finalJob.error?.message || "生成失败，请稍后重试。";
       setError(failedMessage);
       setJobState(finalJob);
     } catch (requestError) {
       if (requestError.name !== "AbortError") {
-        const message = requestError.message || "???????????";
+        const message = requestError.message || "生成失败，请稍后重试。";
         setError(message);
         setJobState((current) => ({
           ...(current || {}),
@@ -351,10 +351,10 @@ export default function App() {
   const statusCopy = buildStatusCopy(jobState);
   const canOpenResult = Boolean(result || jobState || error);
   const resultButtonLabel = isLoading
-    ? "????"
+    ? "查看进度"
     : error
-      ? "????"
-      : "????";
+      ? "查看状态"
+      : "查看结果";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-shell text-slate-900">

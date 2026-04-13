@@ -22,6 +22,27 @@ const envSchema = z.object({
   ZHIPU_CHAT_MODEL: z.string().min(1).default("glm-4.7-flashx"),
   ZHIPU_EMBEDDING_MODEL: z.string().min(1).default("embedding-3"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
+  START_EMBEDDED_WORKER: z
+    .preprocess(
+      (value) => {
+        if (typeof value === "boolean") {
+          return value;
+        }
+
+        if (typeof value === "string") {
+          if (value.toLowerCase() === "true") {
+            return true;
+          }
+
+          if (value.toLowerCase() === "false") {
+            return false;
+          }
+        }
+
+        return undefined;
+      },
+      z.boolean().default(false)
+    ),
   JOB_QUEUE_NAME: z.string().min(1).default("generate-stimuli"),
   JOB_WORKER_CONCURRENCY: z.coerce.number().int().positive().default(3),
   JOB_QUEUE_MAX_SIZE: z.coerce.number().int().positive().default(30),
