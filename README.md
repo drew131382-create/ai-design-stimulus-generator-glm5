@@ -1,12 +1,12 @@
 # AI Design Stimulus Generator
 
-一个面向设计师的在线工具。用户输入设计需求或问题后，前端调用自有 Node.js 后端，后端通过智谱 API 请求 GLM-4.7-FlashX，并返回结构化的 `near / medium / far` 三类设计刺激词，用于功能优化、场景重构与跨领域创新。
+一个面向设计师的在线工具。用户输入设计需求或问题后，前端调用自有 Node.js 后端，后端通过智谱 API 请求 GLM-5，并返回结构化的 `near / medium / far` 三类设计刺激词，用于功能优化、场景重构与跨领域创新。
 
 ## 项目介绍
 
 - 前后端分离：`client` 为 React + Vite + Tailwind CSS，`server` 为 Node.js + Express
 - AI 调用仅发生在后端
-- 使用环境变量配置 ModelScope API Key、Base URL 与模型名
+- 使用环境变量配置 Zhipu API Key、Base URL 与模型名
 - 返回严格结构化 JSON，并带有输入校验、基础安全中间件、限流与错误处理
 - UI 为设计工具风格，三组结果卡片 + 底部详情面板
 
@@ -38,9 +38,10 @@ VITE_API_BASE_URL=http://localhost:10000
 
 ```bash
 # server/.env
-MODELSCOPE_API_KEY=your_modelscope_api_key_here
-MODELSCOPE_BASE_URL=your_modelscope_openai_compatible_base_url_here
-MODELSCOPE_MODEL=ZhipuAI/GLM-4.7-Flashx
+ZHIPU_API_KEY=your_zhipu_api_key_here
+ZHIPU_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+ZHIPU_CHAT_MODEL=glm-5
+ZHIPU_EMBEDDING_MODEL=embedding-3
 ALLOWED_ORIGIN=http://localhost:5173
 PORT=10000
 ```
@@ -92,9 +93,10 @@ git push -u origin main
 
 后端：
 
-- `MODELSCOPE_API_KEY`
-- `MODELSCOPE_BASE_URL`
-- `MODELSCOPE_MODEL`
+- `ZHIPU_API_KEY`
+- `ZHIPU_BASE_URL`
+- `ZHIPU_CHAT_MODEL`
+- `ZHIPU_EMBEDDING_MODEL`
 - `ALLOWED_ORIGIN`
 - `PORT`
 
@@ -133,9 +135,10 @@ npm start
 7. 配置环境变量：
 
 ```bash
-MODELSCOPE_API_KEY=your_modelscope_api_key_here
-MODELSCOPE_BASE_URL=your_modelscope_openai_compatible_base_url_here
-MODELSCOPE_MODEL=ZhipuAI/GLM-4.7-Flashx
+ZHIPU_API_KEY=your_zhipu_api_key_here
+ZHIPU_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+ZHIPU_CHAT_MODEL=glm-5
+ZHIPU_EMBEDDING_MODEL=embedding-3
 ALLOWED_ORIGIN=https://your-vercel-frontend-url.vercel.app
 PORT=10000
 ```
@@ -144,13 +147,13 @@ PORT=10000
 
 仓库根目录提供了 `render.yaml`，也可以使用 Render Blueprint 方式导入。
 
-## 如何配置 GLM-4.7-FlashX API
+## 如何配置 GLM-5 API
 
-1. 在 ModelScope 平台开通对应 API-Inference 能力
+1. 在智谱开放平台开通对应 API 能力
 2. 获取 OpenAI 兼容方式所需的：
    - API Key
    - Base URL
-   - Model 名称
+   - Model 名称（如 `glm-5`）
 3. 将这些值填入 `server/.env` 或 Render 环境变量
 4. 本项目默认后端按 `chat completions` 风格发起请求，可通过环境变量切换模型或兼容的服务地址，无需改动前端代码
 

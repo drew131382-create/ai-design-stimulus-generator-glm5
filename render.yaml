@@ -34,7 +34,7 @@ services:
       - key: ZHIPU_BASE_URL
         value: https://open.bigmodel.cn/api/paas/v4
       - key: ZHIPU_CHAT_MODEL
-        value: glm-4.7-flashx
+        value: glm-5
       - key: ZHIPU_EMBEDDING_MODEL
         value: embedding-3
       - key: REDIS_URL
@@ -73,7 +73,7 @@ services:
       - key: ZHIPU_BASE_URL
         value: https://open.bigmodel.cn/api/paas/v4
       - key: ZHIPU_CHAT_MODEL
-        value: glm-4.7-flashx
+        value: glm-5
       - key: ZHIPU_EMBEDDING_MODEL
         value: embedding-3
       - key: REDIS_URL

@@ -19,7 +19,7 @@ const envSchema = z.object({
       .url("REDIS_URL must be a valid URL")
       .optional()
   ),
-  ZHIPU_CHAT_MODEL: z.string().min(1).default("glm-4.7-flashx"),
+  ZHIPU_CHAT_MODEL: z.string().min(1).default("glm-5"),
   ZHIPU_EMBEDDING_MODEL: z.string().min(1).default("embedding-3"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
   START_EMBEDDED_WORKER: z
