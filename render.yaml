@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ai-design-stimulus-frontend
+    name: ai-design-stimulus-frontend-v1-2
     runtime: static
     rootDir: client
     plan: free
@@ -17,7 +17,7 @@ services:
         sync: false
 
   - type: web
-    name: ai-design-stimulus-api
+    name: ai-design-stimulus-api-v1-2
     runtime: node
     rootDir: server
     plan: starter
@@ -57,7 +57,7 @@ services:
         value: 10000
 
   - type: worker
-    name: ai-design-stimulus-worker
+    name: ai-design-stimulus-worker-v1-2
     runtime: node
     rootDir: server
     plan: starter

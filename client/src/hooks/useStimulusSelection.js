@@ -6,7 +6,11 @@ function buildItemKey(item) {
     return "";
   }
 
-  return [item.word, item.explanation, item.direction].join("::");
+  return [
+    item.word,
+    item.designDimension || item.design_dimension,
+    item.reason || item.explanation || item.direction
+  ].join("::");
 }
 
 function findFirstAvailable(result) {

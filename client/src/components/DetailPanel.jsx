@@ -21,6 +21,16 @@ export default function DetailPanel({ selection, selectedItem }) {
   }
 
   const group = GROUP_MAP[selection.group];
+  const reason =
+    selectedItem.reason ||
+    selectedItem.direction ||
+    selectedItem.explanation ||
+    selectedItem.inspiration;
+  const dimension = selectedItem.designDimension || "未标注";
+  const semanticDistance =
+    typeof selectedItem.semanticDistance === "number"
+      ? selectedItem.semanticDistance
+      : selectedItem.semantic_distance;
 
   return (
     <section className="rounded-[28px] border border-slate-200/80 bg-white/85 p-6 shadow-panel backdrop-blur md:p-8">
@@ -48,19 +58,19 @@ export default function DetailPanel({ selection, selectedItem }) {
         <div className="grid gap-4 md:grid-cols-2">
           <article className="rounded-2xl border border-slate-200 bg-slate-50/85 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              解释说明
+              设计维度
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
-              {selectedItem.explanation || selectedItem.inspiration}
+              {dimension}
             </p>
           </article>
 
           <article className="rounded-2xl border border-slate-200 bg-slate-50/85 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              设计方向
+              刺激理由
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
-              {selectedItem.direction || selectedItem.explanation}
+              {reason}
             </p>
           </article>
 
@@ -69,7 +79,7 @@ export default function DetailPanel({ selection, selectedItem }) {
               语义距离
             </p>
             <p className="mt-3 text-base leading-7 text-slate-700">
-              {formatSemanticDistance(selectedItem.semantic_distance)}
+              {formatSemanticDistance(semanticDistance)}
             </p>
             <p className="mt-2 text-xs text-slate-500">
               注：语义距离基于 ZHIPU 的 Embedding-3 模型计算。

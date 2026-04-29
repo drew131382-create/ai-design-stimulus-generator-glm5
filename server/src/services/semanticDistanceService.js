@@ -40,7 +40,9 @@ function normalizeNullDistance(item) {
     semantic_similarity: null,
     semantic_distance: null,
     semantic_distance_score: null,
-    semantic_distance_level: null
+    semantic_distance_level: null,
+    semanticDistanceScore: null,
+    semanticDistanceLevel: null
   };
 }
 
@@ -167,8 +169,8 @@ export function buildGoalText(task) {
 
 export function buildStimulusText(item) {
   const word = normalizeOptionalText(item.word);
-  const explanation = normalizeOptionalText(item.explanation);
-  return [word, explanation].filter(Boolean).join(" - ");
+  const reason = normalizeOptionalText(item.reason || item.explanation);
+  return [word, reason].filter(Boolean).join(" - ");
 }
 
 export async function attachSemanticDistance(task, stimuliPayload) {
@@ -219,7 +221,9 @@ export async function attachSemanticDistance(task, stimuliPayload) {
         semantic_similarity: toFiniteNumber(boundedSimilarity),
         semantic_distance: toFiniteNumber(semanticDistance),
         semantic_distance_score: semanticDistanceScore,
-        semantic_distance_level: toDistanceLevel(semanticDistanceScore)
+        semantic_distance_level: toDistanceLevel(semanticDistanceScore),
+        semanticDistanceScore: semanticDistanceScore,
+        semanticDistanceLevel: toDistanceLevel(semanticDistanceScore)
       };
     }
   } catch (error) {

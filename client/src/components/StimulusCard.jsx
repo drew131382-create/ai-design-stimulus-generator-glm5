@@ -1,6 +1,9 @@
 ﻿import { cn } from "../lib/cn";
 
 export default function StimulusCard({ item, selected, group, onClick }) {
+  const dimension = item.designDimension || "未标注";
+  const distance = item.semanticDistance || group.shortTitle;
+
   return (
     <button
       type="button"
@@ -23,9 +26,26 @@ export default function StimulusCard({ item, selected, group, onClick }) {
       />
 
       <div className="relative">
-        <span className="text-lg font-semibold tracking-tight text-slate-900">
-          {item.word}
-        </span>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <span className="text-lg font-semibold tracking-tight text-slate-900">
+            {item.word}
+          </span>
+          <span className="rounded-full border border-slate-200 bg-white/85 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+            {distance}
+          </span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+            {dimension}
+          </span>
+        </div>
+
+        {item.reason ? (
+          <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
+            {item.reason}
+          </p>
+        ) : null}
       </div>
     </button>
   );

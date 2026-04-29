@@ -94,18 +94,36 @@ function normalizeDistanceScore(value) {
   return clamp(Math.round(num), 0, 100);
 }
 
-function normalizeStimulusItem(item) {
-  const explanation =
+function normalizeSemanticDistanceScore(item) {
+  const camelScore = normalizeDistanceScore(item?.semanticDistanceScore);
+
+  if (camelScore !== null) {
+    return camelScore;
+  }
+
+  return normalizeDistanceScore(item?.semantic_distance_score);
+}
+
+function normalizeStimulusItem(item, groupKey) {
+  const reason =
+    normalizeText(item?.reason) ||
+    normalizeText(item?.direction) ||
     normalizeText(item?.explanation) ||
-    normalizeText(item?.inspiration) ||
-    normalizeText(item?.direction);
-  const score = normalizeDistanceScore(item?.semantic_distance_score);
+    normalizeText(item?.inspiration);
+  const score = normalizeSemanticDistanceScore(item);
+  const designDimension =
+    normalizeText(item?.designDimension) ||
+    normalizeText(item?.design_dimension) ||
+    "未标注";
+  const semanticDistance = normalizeText(item?.semanticDistance) || groupKey;
 
   return {
     word: normalizeText(item?.word),
-    explanation,
-    inspiration: normalizeText(item?.inspiration) || explanation,
-    direction: normalizeText(item?.direction) || explanation,
+    reason,
+    designDimension,
+    explanation: normalizeText(item?.explanation) || reason,
+    inspiration: normalizeText(item?.inspiration) || reason,
+    direction: normalizeText(item?.direction) || reason,
     semantic_similarity: normalizeNumber(item?.semantic_similarity),
     semantic_distance: normalizeNumber(item?.semantic_distance),
     semantic_distance_score: score,
@@ -114,18 +132,28 @@ function normalizeStimulusItem(item) {
         ? item.semantic_distance_level
         : score === null
           ? null
-          : toDistanceLevel(score)
+          : toDistanceLevel(score),
+    semanticDistance,
+    semanticDistanceScore: score,
+    semanticDistanceLevel:
+      typeof item?.semanticDistanceLevel === "string"
+        ? item.semanticDistanceLevel
+        : typeof item?.semantic_distance_level === "string"
+          ? item.semantic_distance_level
+          : score === null
+            ? null
+            : toDistanceLevel(score)
   };
 }
 
-function normalizeStimulusGroup(group) {
+function normalizeStimulusGroup(group, groupKey) {
   if (!Array.isArray(group)) {
     return [];
   }
 
   return group
-    .map((item) => normalizeStimulusItem(item))
-    .filter((item) => item.word && item.explanation);
+    .map((item) => normalizeStimulusItem(item, groupKey))
+    .filter((item) => item.word && item.reason);
 }
 
 function normalizeTask(task) {
@@ -142,9 +170,9 @@ function normalizeTask(task) {
 function normalizeGeneratePayload(payload) {
   return {
     task: normalizeTask(payload?.task),
-    near: normalizeStimulusGroup(payload?.near),
-    medium: normalizeStimulusGroup(payload?.medium),
-    far: normalizeStimulusGroup(payload?.far)
+    near: normalizeStimulusGroup(payload?.near, "near"),
+    medium: normalizeStimulusGroup(payload?.medium, "medium"),
+    far: normalizeStimulusGroup(payload?.far, "far")
   };
 }
 

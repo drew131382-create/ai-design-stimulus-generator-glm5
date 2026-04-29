@@ -185,7 +185,9 @@ export async function generateStimuli(task) {
     try {
       const rawContent = await requestChatCompletion(messages);
       const parsedJson = parseModelJson(rawContent);
-      return normalizeStimulusGroups(parsedJson);
+      return normalizeStimulusGroups(parsedJson, {
+        excludeWords: task.excludeWords
+      });
     } catch (error) {
       lastError = error;
       console.error("[aiService] zhipu request failed", {

@@ -5,8 +5,16 @@ import StimulusColumn from "./components/StimulusColumn";
 import DetailPanel from "./components/DetailPanel";
 import StatusBlock from "./components/StatusBlock";
 import ResultModal from "./components/ResultModal";
+import HistoryPanel from "./components/HistoryPanel";
+import TaskCard from "./components/TaskCard";
 import { STIMULUS_GROUPS } from "./lib/categories";
 import { createGenerateJob, waitForGenerateJob } from "./lib/api";
+import {
+  createStimulusHistoryRecord,
+  getHistoryWords,
+  loadStimulusHistory,
+  saveStimulusHistoryRecord
+} from "./lib/stimulusHistory";
 import { useStimulusSelection } from "./hooks/useStimulusSelection";
 
 const PRODUCT_MIN_LENGTH = 2;
@@ -18,6 +26,11 @@ const CONSTRAINTS_MAX_LENGTH = 150;
 const VIEW_MODES = {
   generated: "generated",
   semantic: "semantic"
+};
+
+const MODAL_MODES = {
+  current: "current",
+  history: "history"
 };
 
 const EMPTY_TASK_FORM = {
@@ -233,8 +246,14 @@ export default function App() {
   const [taskForm, setTaskForm] = useState(EMPTY_TASK_FORM);
   const [formErrors, setFormErrors] = useState({});
   const [result, setResult] = useState(null);
+  const [currentTask, setCurrentTask] = useState(null);
   const [viewMode, setViewMode] = useState(VIEW_MODES.semantic);
   const [resultModalOpen, setResultModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState(MODAL_MODES.current);
+  const [activeHistoryRecord, setActiveHistoryRecord] = useState(null);
+  const [historyRecords, setHistoryRecords] = useState(() =>
+    loadStimulusHistory()
+  );
   const [jobState, setJobState] = useState(null);
   const [error, setError] = useState("");
   const abortRef = useRef(null);
@@ -243,17 +262,24 @@ export default function App() {
     jobState?.status
   );
 
+  const activeResult =
+    modalMode === MODAL_MODES.history ? activeHistoryRecord?.result : result;
+  const activeTask =
+    modalMode === MODAL_MODES.history ? activeHistoryRecord?.task : currentTask;
+  const activeIsLoading = modalMode === MODAL_MODES.current && isLoading;
+  const activeError = modalMode === MODAL_MODES.current ? error : "";
+
   const displayResult = useMemo(() => {
-    if (!result) {
+    if (!activeResult) {
       return null;
     }
 
     if (viewMode === VIEW_MODES.semantic) {
-      return buildSemanticGroups(result);
+      return buildSemanticGroups(activeResult);
     }
 
-    return result;
-  }, [result, viewMode]);
+    return activeResult;
+  }, [activeResult, viewMode]);
 
   const { selection, selectedItem, selectItem } = useStimulusSelection(
     displayResult
@@ -293,6 +319,8 @@ export default function App() {
     abortRef.current = controller;
 
     setResult(null);
+    setActiveHistoryRecord(null);
+    setModalMode(MODAL_MODES.current);
     setError("");
     setFormErrors({});
     setJobState({
@@ -306,7 +334,11 @@ export default function App() {
     setResultModalOpen(true);
 
     try {
-      const createdJob = await createGenerateJob(task, controller.signal);
+      const taskForRequest = {
+        ...task,
+        excludeWords: getHistoryWords(historyRecords)
+      };
+      const createdJob = await createGenerateJob(taskForRequest, controller.signal);
       setJobState(createdJob);
 
       const finalJob = await waitForGenerateJob(createdJob.jobId, {
@@ -319,8 +351,19 @@ export default function App() {
       });
 
       if (finalJob.status === "completed" && finalJob.result) {
+        const historyRecord = createStimulusHistoryRecord(
+          task,
+          finalJob.result
+        );
+        const nextHistoryRecords = saveStimulusHistoryRecord(
+          historyRecord,
+          historyRecords
+        );
+
         startTransition(() => {
           setResult(finalJob.result);
+          setCurrentTask(task);
+          setHistoryRecords(nextHistoryRecords);
           setViewMode(VIEW_MODES.semantic);
           setError("");
           setJobState(finalJob);
@@ -348,6 +391,19 @@ export default function App() {
     }
   };
 
+  const handleOpenCurrentResult = () => {
+    setModalMode(MODAL_MODES.current);
+    setActiveHistoryRecord(null);
+    setResultModalOpen(true);
+  };
+
+  const handleOpenHistoryRecord = (record) => {
+    setModalMode(MODAL_MODES.history);
+    setActiveHistoryRecord(record);
+    setViewMode(VIEW_MODES.semantic);
+    setResultModalOpen(true);
+  };
+
   const statusCopy = buildStatusCopy(jobState);
   const canOpenResult = Boolean(result || jobState || error);
   const resultButtonLabel = isLoading
@@ -371,19 +427,26 @@ export default function App() {
           formErrors={formErrors}
           onFieldChange={handleFieldChange}
           onGenerate={handleGenerate}
-          onOpenResult={() => setResultModalOpen(true)}
+          onOpenResult={handleOpenCurrentResult}
           loading={isLoading}
           hasResult={Boolean(result)}
           canOpenResult={canOpenResult}
           resultButtonLabel={resultButtonLabel}
         />
+
+        <HistoryPanel
+          records={historyRecords}
+          activeRecordId={activeHistoryRecord?.id}
+          onOpenRecord={handleOpenHistoryRecord}
+        />
       </main>
 
       <ResultModal
         open={resultModalOpen}
+        title={modalMode === MODAL_MODES.history ? "历史结果" : "生成结果"}
         onClose={() => setResultModalOpen(false)}
       >
-        {isLoading ? (
+        {activeIsLoading ? (
           <StatusBlock
             type="loading"
             message={statusCopy.message}
@@ -391,10 +454,14 @@ export default function App() {
           />
         ) : null}
 
-        {!isLoading && error ? <StatusBlock type="error" message={error} /> : null}
+        {!activeIsLoading && activeError ? (
+          <StatusBlock type="error" message={activeError} />
+        ) : null}
 
-        {!isLoading && !error && displayResult ? (
+        {!activeIsLoading && !activeError && displayResult ? (
           <section className="space-y-5">
+            <TaskCard task={activeTask} />
+
             <ClassificationToggle mode={viewMode} onChange={setViewMode} />
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,2.1fr)_minmax(380px,1fr)] xl:items-start">

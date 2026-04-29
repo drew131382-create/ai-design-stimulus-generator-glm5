@@ -25,13 +25,20 @@ function optionalTextField(max) {
   return schema.optional().default("");
 }
 
+const excludeWordsSchema = z
+  .array(z.string().trim().min(1).max(20))
+  .max(200)
+  .optional()
+  .default([]);
+
 const structuredTaskSchema = z
   .object({
     product: requiredTextField("product", 2, 30),
     user: optionalTextField(50),
     scenario: optionalTextField(),
     goal: optionalTextField(150),
-    constraints: optionalTextField(150)
+    constraints: optionalTextField(150),
+    excludeWords: excludeWordsSchema
   })
   .strict();
 
@@ -57,6 +64,7 @@ function buildTaskFromPrompt(prompt) {
     scenario: text,
     goal: text,
     constraints: "无硬性限制",
+    excludeWords: [],
     styleTags: [],
     emotionTags: [],
     existingIdeas: "",
@@ -84,6 +92,7 @@ function buildTaskFromStructuredPayload(taskPayload) {
 
   return {
     ...normalized,
+    excludeWords: Array.from(new Set(parsed.data.excludeWords)),
     prompt: buildPrompt(normalized),
     styleTags: [],
     emotionTags: [],
